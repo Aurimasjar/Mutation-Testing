@@ -1,0 +1,100 @@
+TestVendingMachine
+
+
+======================================== Generating Original Test Results ========================================
+{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+
+
+======================================== Executing Mutants ========================================
+test report: {testCoin2=, testCoin1=, testCoin3=, testConstructor=}
+mutant report: {}
+
+
+======================================== Executing Mutants ========================================
+  COI_1{testCoin2=pass, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=pass, testConstructor=pass}
+  COI_2{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+  COI_3{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+  COI_4{testCoin2=pass, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=pass, testConstructor=pass}
+  COI_5{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+  COI_6{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=pass, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+  COR_1{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=pass, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+  COR_2{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+  COR_3{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=pass, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+  COR_4{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+  ROR_1{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_10{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_11{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=pass, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+  ROR_12{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+  ROR_13{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=pass, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+  ROR_14{testCoin2=pass, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=pass, testConstructor=pass}
+  ROR_15{testCoin2=pass, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=pass, testConstructor=pass}
+  ROR_16{testCoin2=pass, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=pass, testConstructor=pass}
+  ROR_17{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_18{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_19{testCoin2=pass, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=pass, testConstructor=pass}
+  ROR_2{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_20{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_21{testCoin2=pass, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=pass, testConstructor=pass}
+  ROR_22{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_23{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=pass, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+  ROR_24{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=pass, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+  ROR_25{testCoin2=pass, testCoin1=pass, testCoin3=testCoin3: 52; expected:<100> but was:<125>, testConstructor=pass}
+  ROR_26{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=pass, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+  ROR_27{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=pass, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+  ROR_28{testCoin2=pass, testCoin1=pass, testCoin3=testCoin3: 52; expected:<100> but was:<125>, testConstructor=pass}
+  ROR_3{testCoin2=pass, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=pass, testConstructor=pass}
+  ROR_4{testCoin2=pass, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=pass, testConstructor=pass}
+  ROR_5{testCoin2=pass, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=pass, testConstructor=pass}
+  ROR_6{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_7{testCoin2=pass, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=pass, testConstructor=pass}
+  ROR_8{testCoin2=pass, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=pass, testConstructor=pass}
+  ROR_9{testCoin2=testCoin2: 39; expected:<25> but was:<0>, testCoin1=testCoin1: 32; expected:<0> but was:<20>, testCoin3=testCoin3: 49; expected:<100> but was:<0>, testConstructor=pass}
+test report: {testCoin2=COI_2, COI_3, COI_5, COI_6, COR_1, COR_2, COR_3, COR_4, ROR_11, ROR_12, ROR_13, ROR_23, ROR_24, ROR_26, ROR_27, ROR_9, testCoin1=COI_1, COI_2, COI_3, COI_4, COI_5, COR_2, COR_4, ROR_12, ROR_14, ROR_15, ROR_16, ROR_19, ROR_21, ROR_3, ROR_4, ROR_5, ROR_7, ROR_8, ROR_9, testCoin3=COI_2, COI_3, COI_5, COI_6, COR_1, COR_2, COR_3, COR_4, ROR_11, ROR_12, ROR_13, ROR_23, ROR_24, ROR_25, ROR_26, ROR_27, ROR_28, ROR_9, testConstructor=}
+mutant report: {ROR_14=testCoin1, ROR_2=, COI_6=testCoin3, testCoin2, ROR_13=testCoin3, testCoin2, ROR_3=testCoin1, ROR_16=testCoin1, ROR_4=testCoin1, ROR_15=testCoin1, ROR_5=testCoin1, COI_3=testCoin3, testCoin1, testCoin2, ROR_10=, ROR_6=, COI_2=testCoin3, testCoin1, testCoin2, ROR_7=testCoin1, COI_5=testCoin3, testCoin1, testCoin2, ROR_12=testCoin3, testCoin1, testCoin2, ROR_8=testCoin1, COI_4=testCoin1, ROR_11=testCoin3, testCoin2, ROR_9=testCoin3, testCoin1, testCoin2, COR_2=testCoin3, testCoin1, testCoin2, COR_1=testCoin3, testCoin2, COR_4=testCoin3, testCoin1, testCoin2, COR_3=testCoin3, testCoin2, ROR_1=, COI_1=testCoin1, ROR_18=, ROR_17=, ROR_19=testCoin1, ROR_25=testCoin3, ROR_24=testCoin3, testCoin2, ROR_27=testCoin3, testCoin2, ROR_26=testCoin3, testCoin2, ROR_21=testCoin1, ROR_20=, ROR_23=testCoin3, testCoin2, ROR_22=, ROR_28=testCoin3}
+
+
+======================================== Executing Mutants ========================================
+  COI_7{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  COI_8{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  COI_9{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  COR_5{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  COR_6{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_29{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_30{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_31{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_32{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_33{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_34{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_35{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_36{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_37{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_38{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_39{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_40{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_41{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_42{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+test report: {testCoin2=COI_2, COI_3, COI_5, COI_6, COR_1, COR_2, COR_3, COR_4, ROR_11, ROR_12, ROR_13, ROR_23, ROR_24, ROR_26, ROR_27, ROR_9, testCoin1=COI_1, COI_2, COI_3, COI_4, COI_5, COR_2, COR_4, ROR_12, ROR_14, ROR_15, ROR_16, ROR_19, ROR_21, ROR_3, ROR_4, ROR_5, ROR_7, ROR_8, ROR_9, testCoin3=COI_2, COI_3, COI_5, COI_6, COR_1, COR_2, COR_3, COR_4, ROR_11, ROR_12, ROR_13, ROR_23, ROR_24, ROR_25, ROR_26, ROR_27, ROR_28, ROR_9, testConstructor=}
+mutant report: {ROR_14=testCoin1, ROR_2=, COI_7=, COI_6=testCoin3, testCoin2, ROR_13=testCoin3, testCoin2, ROR_3=testCoin1, ROR_16=testCoin1, ROR_4=testCoin1, COI_9=, ROR_15=testCoin1, ROR_5=testCoin1, COI_8=, COI_3=testCoin3, testCoin1, testCoin2, ROR_10=, ROR_6=, COI_2=testCoin3, testCoin1, testCoin2, ROR_7=testCoin1, COI_5=testCoin3, testCoin1, testCoin2, ROR_12=testCoin3, testCoin1, testCoin2, ROR_8=testCoin1, COI_4=testCoin1, ROR_11=testCoin3, testCoin2, ROR_9=testCoin3, testCoin1, testCoin2, ROR_1=, COI_1=testCoin1, ROR_18=, ROR_17=, ROR_19=testCoin1, ROR_42=, ROR_41=, ROR_40=, ROR_36=, ROR_35=, ROR_38=, ROR_37=, ROR_32=, ROR_31=, ROR_34=, ROR_33=, COR_6=, COR_5=, ROR_30=, COR_2=testCoin3, testCoin1, testCoin2, COR_1=testCoin3, testCoin2, COR_4=testCoin3, testCoin1, testCoin2, COR_3=testCoin3, testCoin2, ROR_39=, ROR_25=testCoin3, ROR_24=testCoin3, testCoin2, ROR_27=testCoin3, testCoin2, ROR_26=testCoin3, testCoin2, ROR_21=testCoin1, ROR_20=, ROR_23=testCoin3, testCoin2, ROR_22=, ROR_29=, ROR_28=testCoin3}
+
+
+======================================== Executing Mutants ========================================
+  COI_10{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_43{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_44{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_45{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_46{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_47{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_48{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+  ROR_49{testCoin2=pass, testCoin1=pass, testCoin3=pass, testConstructor=pass}
+test report: {testCoin2=COI_2, COI_3, COI_5, COI_6, COR_1, COR_2, COR_3, COR_4, ROR_11, ROR_12, ROR_13, ROR_23, ROR_24, ROR_26, ROR_27, ROR_9, testCoin1=COI_1, COI_2, COI_3, COI_4, COI_5, COR_2, COR_4, ROR_12, ROR_14, ROR_15, ROR_16, ROR_19, ROR_21, ROR_3, ROR_4, ROR_5, ROR_7, ROR_8, ROR_9, testCoin3=COI_2, COI_3, COI_5, COI_6, COR_1, COR_2, COR_3, COR_4, ROR_11, ROR_12, ROR_13, ROR_23, ROR_24, ROR_25, ROR_26, ROR_27, ROR_28, ROR_9, testConstructor=}
+mutant report: {ROR_14=testCoin1, ROR_2=, COI_7=, COI_6=testCoin3, testCoin2, ROR_13=testCoin3, testCoin2, ROR_3=testCoin1, ROR_16=testCoin1, ROR_4=testCoin1, COI_9=, ROR_15=testCoin1, ROR_5=testCoin1, COI_8=, COI_3=testCoin3, testCoin1, testCoin2, ROR_10=, ROR_6=, COI_2=testCoin3, testCoin1, testCoin2, ROR_7=testCoin1, COI_5=testCoin3, testCoin1, testCoin2, ROR_12=testCoin3, testCoin1, testCoin2, ROR_8=testCoin1, COI_4=testCoin1, ROR_11=testCoin3, testCoin2, ROR_9=testCoin3, testCoin1, testCoin2, ROR_1=, COI_10=, COI_1=testCoin1, ROR_18=, ROR_17=, ROR_19=testCoin1, ROR_47=, ROR_46=, ROR_49=, ROR_48=, ROR_43=, ROR_42=, ROR_45=, ROR_44=, ROR_41=, ROR_40=, ROR_36=, ROR_35=, ROR_38=, ROR_37=, ROR_32=, ROR_31=, ROR_34=, ROR_33=, COR_6=, COR_5=, ROR_30=, COR_2=testCoin3, testCoin1, testCoin2, COR_1=testCoin3, testCoin2, COR_4=testCoin3, testCoin1, testCoin2, COR_3=testCoin3, testCoin2, ROR_39=, ROR_25=testCoin3, ROR_24=testCoin3, testCoin2, ROR_27=testCoin3, testCoin2, ROR_26=testCoin3, testCoin2, ROR_21=testCoin1, ROR_20=, ROR_23=testCoin3, testCoin2, ROR_22=, ROR_29=, ROR_28=testCoin3}
+
+
+======================================== Executing Mutants ========================================
+test report: {testCoin2=COI_2, COI_3, COI_5, COI_6, COR_1, COR_2, COR_3, COR_4, ROR_11, ROR_12, ROR_13, ROR_23, ROR_24, ROR_26, ROR_27, ROR_9, testCoin1=COI_1, COI_2, COI_3, COI_4, COI_5, COR_2, COR_4, ROR_12, ROR_14, ROR_15, ROR_16, ROR_19, ROR_21, ROR_3, ROR_4, ROR_5, ROR_7, ROR_8, ROR_9, testCoin3=COI_2, COI_3, COI_5, COI_6, COR_1, COR_2, COR_3, COR_4, ROR_11, ROR_12, ROR_13, ROR_23, ROR_24, ROR_25, ROR_26, ROR_27, ROR_28, ROR_9, testConstructor=}
+mutant report: {ROR_14=testCoin1, ROR_2=, COI_7=, COI_6=testCoin3, testCoin2, ROR_13=testCoin3, testCoin2, ROR_3=testCoin1, ROR_16=testCoin1, ROR_4=testCoin1, COI_9=, ROR_15=testCoin1, ROR_5=testCoin1, COI_8=, COI_3=testCoin3, testCoin1, testCoin2, ROR_10=, ROR_6=, COI_2=testCoin3, testCoin1, testCoin2, ROR_7=testCoin1, COI_5=testCoin3, testCoin1, testCoin2, ROR_12=testCoin3, testCoin1, testCoin2, ROR_8=testCoin1, COI_4=testCoin1, ROR_11=testCoin3, testCoin2, ROR_9=testCoin3, testCoin1, testCoin2, ROR_1=, COI_10=, COI_1=testCoin1, ROR_18=, ROR_17=, ROR_19=testCoin1, ROR_47=, ROR_46=, ROR_49=, ROR_48=, ROR_43=, ROR_42=, ROR_45=, ROR_44=, ROR_41=, ROR_40=, ROR_36=, ROR_35=, ROR_38=, ROR_37=, ROR_32=, ROR_31=, ROR_34=, ROR_33=, COR_6=, COR_5=, ROR_30=, COR_2=testCoin3, testCoin1, testCoin2, COR_1=testCoin3, testCoin2, COR_4=testCoin3, testCoin1, testCoin2, COR_3=testCoin3, testCoin2, ROR_39=, ROR_25=testCoin3, ROR_24=testCoin3, testCoin2, ROR_27=testCoin3, testCoin2, ROR_26=testCoin3, testCoin2, ROR_21=testCoin1, ROR_20=, ROR_23=testCoin3, testCoin2, ROR_22=, ROR_29=, ROR_28=testCoin3}
+
+
+======================================== Executing Mutants ========================================
+test report: {testCoin2=COI_2, COI_3, COI_5, COI_6, COR_1, COR_2, COR_3, COR_4, ROR_11, ROR_12, ROR_13, ROR_23, ROR_24, ROR_26, ROR_27, ROR_9, testCoin1=COI_1, COI_2, COI_3, COI_4, COI_5, COR_2, COR_4, ROR_12, ROR_14, ROR_15, ROR_16, ROR_19, ROR_21, ROR_3, ROR_4, ROR_5, ROR_7, ROR_8, ROR_9, testCoin3=COI_2, COI_3, COI_5, COI_6, COR_1, COR_2, COR_3, COR_4, ROR_11, ROR_12, ROR_13, ROR_23, ROR_24, ROR_25, ROR_26, ROR_27, ROR_28, ROR_9, testConstructor=}
+mutant report: {ROR_14=testCoin1, ROR_2=, COI_7=, COI_6=testCoin3, testCoin2, ROR_13=testCoin3, testCoin2, ROR_3=testCoin1, ROR_16=testCoin1, ROR_4=testCoin1, COI_9=, ROR_15=testCoin1, ROR_5=testCoin1, COI_8=, COI_3=testCoin3, testCoin1, testCoin2, ROR_10=, ROR_6=, COI_2=testCoin3, testCoin1, testCoin2, ROR_7=testCoin1, COI_5=testCoin3, testCoin1, testCoin2, ROR_12=testCoin3, testCoin1, testCoin2, ROR_8=testCoin1, COI_4=testCoin1, ROR_11=testCoin3, testCoin2, ROR_9=testCoin3, testCoin1, testCoin2, ROR_1=, COI_10=, COI_1=testCoin1, ROR_18=, ROR_17=, ROR_19=testCoin1, ROR_47=, ROR_46=, ROR_49=, ROR_48=, ROR_43=, ROR_42=, ROR_45=, ROR_44=, ROR_41=, ROR_40=, ROR_36=, ROR_35=, ROR_38=, ROR_37=, ROR_32=, ROR_31=, ROR_34=, ROR_33=, COR_6=, COR_5=, ROR_30=, COR_2=testCoin3, testCoin1, testCoin2, COR_1=testCoin3, testCoin2, COR_4=testCoin3, testCoin1, testCoin2, COR_3=testCoin3, testCoin2, ROR_39=, ROR_25=testCoin3, ROR_24=testCoin3, testCoin2, ROR_27=testCoin3, testCoin2, ROR_26=testCoin3, testCoin2, ROR_21=testCoin1, ROR_20=, ROR_23=testCoin3, testCoin2, ROR_22=, ROR_29=, ROR_28=testCoin3}

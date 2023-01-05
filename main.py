@@ -62,7 +62,6 @@ def prepare_dataset():
 def main():
     print('main')
     prepare_dataset()
-    # deprecated train.train_model(list(map(lambda m: m.vector, mutants)))
     train.train_model(32, 10)
     print('main finished')
 

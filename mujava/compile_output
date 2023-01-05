@@ -1,0 +1,2 @@
+Note: C:\Users\a.petretis\PycharmProjects\Mutation-Testing\mujava\result\VendingMachine\traditional_mutants\void_addChoc(java.lang.String)\ROR_49\VendingMachine.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
