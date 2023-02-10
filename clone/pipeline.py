@@ -53,8 +53,11 @@ class Pipeline:
                 from pycparser import c_parser
                 parser = c_parser.CParser()
                 source = pd.read_pickle(input_path)
+                print('source1', source)
                 source.columns = ['id', 'code', 'label']
+                print('source2', source)
                 source['code'] = source['code'].progress_apply(parser.parse)
+                print('source3', source)
                 source.to_pickle(output_path)
             else:
                 import javalang
@@ -79,6 +82,7 @@ class Pipeline:
         """
         pairs = pd.read_pickle(os.path.join(self.root, self.language,
                                             filename))
+        print('pairs', pairs)
         self.pairs = pairs
 
     # split data for training, developing and testing
@@ -213,16 +217,16 @@ class Pipeline:
             self.read_pairs('oj_clone_ids.pkl')
         else:
             self.read_pairs('bcb_pair_ids.pkl')
-        print('split data...')
-        self.split_data()
-        print('train word embedding...')
-        self.dictionary_and_embedding(None, 128)
-        print('generate block sequences...')
-        self.generate_block_seqs()
-        print('merge pairs and blocks...')
-        self.merge(self.train_file_path, 'train')
-        self.merge(self.dev_file_path, 'dev')
-        self.merge(self.test_file_path, 'test')
+        # print('split data...')
+        # self.split_data()
+        # print('train word embedding...')
+        # self.dictionary_and_embedding(None, 128)
+        # print('generate block sequences...')
+        # self.generate_block_seqs()
+        # print('merge pairs and blocks...')
+        # self.merge(self.train_file_path, 'train')
+        # self.merge(self.dev_file_path, 'dev')
+        # self.merge(self.test_file_path, 'test')
 
 
 @click.command()
@@ -231,6 +235,7 @@ class Pipeline:
 def main(lang):
     ppl = Pipeline('3:1:1', 'data/', str(lang))
     ppl.run()
+    print("finished")
 
 
 if __name__ == "__main__":
