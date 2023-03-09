@@ -7,4 +7,4 @@
 
 ### How to use it on your own dataset
 
-Please refer to the `pkl` files in the corresponding directories of the two tasks. These files can be loaded by `pandas`.
+Please refer to the `pkl` file in the corresponding directory. This file can be loaded by `pandas`.

@@ -1,3 +1,5 @@
+import time
+
 import pandas as pd
 import os
 import sys
@@ -5,18 +7,21 @@ import warnings
 import click
 from tqdm.auto import tqdm
 
+import metrics
+
 tqdm.pandas()
 warnings.filterwarnings('ignore')
 
 
 class Pipeline:
-    def __init__(self,  ratio, root, language: str):
+    def __init__(self, ratio, root, language: str):
 
         self.language = language.lower()
         assert self.language in ('c', 'java')
         self.ratio = ratio
         self.root = root
         self.sources = None
+        self.metrics = None
         self.blocks = None
         self.pairs = None
         self.train_file_path = None
@@ -47,26 +52,25 @@ class Pipeline:
         input_path = os.path.join(self.root, self.language, input_file)
         if output_file is None:
             source = pd.read_pickle(input_path)
+
         else:
             output_path = os.path.join(self.root, self.language, output_file)
             if self.language == 'c':
                 from pycparser import c_parser
                 parser = c_parser.CParser()
                 source = pd.read_pickle(input_path)
-                print('source1', source)
                 source.columns = ['id', 'code', 'label']
-                print('source2', source)
                 source['code'] = source['code'].progress_apply(parser.parse)
-                print('source3', source)
                 source.to_pickle(output_path)
             else:
                 import javalang
 
                 def parse_program(func):
-                    tokens = javalang.tokenizer.tokenize(func)
+                    tokens = javalang.tokenizer.tokenize(func, True)
                     parser = javalang.parser.Parser(tokens)
                     tree = parser.parse_member_declaration()
                     return tree
+
                 source = pd.read_csv(input_path, delimiter='\t')
                 source.columns = ['id', 'code']
                 source['code'] = source['code'].progress_apply(parse_program)
@@ -82,17 +86,29 @@ class Pipeline:
         """
         pairs = pd.read_pickle(os.path.join(self.root, self.language,
                                             filename))
-        print('pairs', pairs)
+        # print('pairs', pairs)
         self.pairs = pairs
+
+    # calculate metrics for each ast
+    def calculate_metrics(self, output_file):
+        # trees = pd.DataFrame(self.sources, copy=True)
+        # self.sources['metrics']
+        # self.metrics = metrics.calculate_metrics(self.sources['code'])
+        self.metrics = pd.DataFrame(self.sources['code'].progress_apply(metrics.calculate_metrics))
+        print('self.metrics', self.metrics)
+        self.sources['metrics'] = self.metrics
+        output_path = os.path.join(self.root, self.language, output_file)
+        self.sources['metrics'].to_pickle(output_path)
+        self.metrics = self.sources
 
     # split data for training, developing and testing
     def split_data(self):
-        data_path = self.root+self.language+'/'
+        data_path = self.root + self.language + '/'
         data = self.pairs
         data_num = len(data)
         ratios = [int(r) for r in self.ratio.split(':')]
-        train_split = int(ratios[0]/sum(ratios)*data_num)
-        val_split = train_split + int(ratios[1]/sum(ratios)*data_num)
+        train_split = int(ratios[0] / sum(ratios) * data_num)
+        val_split = train_split + int(ratios[1] / sum(ratios) * data_num)
 
         data = data.sample(frac=1, random_state=666)
         train = data.iloc[:train_split]
@@ -102,33 +118,34 @@ class Pipeline:
         def check_or_create(path):
             if not os.path.exists(path):
                 os.mkdir(path)
-        train_path = data_path+'train/'
+
+        train_path = data_path + 'train/'
         check_or_create(train_path)
-        self.train_file_path = train_path+'train_.pkl'
+        self.train_file_path = train_path + 'train_.pkl'
         train.to_pickle(self.train_file_path)
 
-        dev_path = data_path+'dev/'
+        dev_path = data_path + 'dev/'
         check_or_create(dev_path)
-        self.dev_file_path = dev_path+'dev_.pkl'
+        self.dev_file_path = dev_path + 'dev_.pkl'
         dev.to_pickle(self.dev_file_path)
 
-        test_path = data_path+'test/'
+        test_path = data_path + 'test/'
         check_or_create(test_path)
-        self.test_file_path = test_path+'test_.pkl'
+        self.test_file_path = test_path + 'test_.pkl'
         test.to_pickle(self.test_file_path)
 
     # construct dictionary and train word embedding
     def dictionary_and_embedding(self, input_file, size):
         self.size = size
-        data_path = self.root+self.language+'/'
+        data_path = self.root + self.language + '/'
         if not input_file:
             input_file = self.train_file_path
         pairs = pd.read_pickle(input_file)
         train_ids = pairs['id1'].append(pairs['id2']).unique()
 
         trees = self.sources.set_index('id', drop=False).loc[train_ids]
-        if not os.path.exists(data_path+'train/embedding'):
-            os.mkdir(data_path+'train/embedding')
+        if not os.path.exists(data_path + 'train/embedding'):
+            os.mkdir(data_path + 'train/embedding')
         if self.language == 'c':
             sys.path.append('../')
             from prepare_data import get_sequences as func
@@ -138,16 +155,18 @@ class Pipeline:
         def trans_to_sequences(ast):
             sequence = []
             func(ast, sequence)
+            # print('seq', sequence)
             return sequence
+
         corpus = trees['code'].apply(trans_to_sequences)
         str_corpus = [' '.join(c) for c in corpus]
         trees['code'] = pd.Series(str_corpus)
-        # trees.to_csv(data_path+'train/programs_ns.tsv')
+        trees.to_csv(data_path + 'train/programs_ns.tsv')
 
         from gensim.models.word2vec import Word2Vec
         w2v = Word2Vec(corpus, vector_size=size, workers=16, sg=1,
                        max_final_vocab=3000)
-        w2v.save(data_path+'train/embedding/node_w2v_' + str(size))
+        w2v.save(data_path + 'train/embedding/node_w2v_' + str(size))
 
     # generate block sequences with index representations
     def generate_block_seqs(self):
@@ -158,7 +177,7 @@ class Pipeline:
         from gensim.models.word2vec import Word2Vec
 
         word2vec = Word2Vec.load(
-            self.root + self.language+'/train/embedding/node_w2v_' +
+            self.root + self.language + '/train/embedding/node_w2v_' +
             str(self.size)
         ).wv
         vocab = word2vec.key_to_index
@@ -180,6 +199,7 @@ class Pipeline:
                 btree = tree_to_index(b)
                 tree.append(btree)
             return tree
+
         trees = pd.DataFrame(self.sources, copy=True)
         trees['code'] = trees['code'].apply(trans2seq)
         if 'label' in trees.columns:
@@ -197,8 +217,24 @@ class Pipeline:
                       left_on='id2', right_on='id')
         df.drop(['id_x', 'id_y'], axis=1, inplace=True)
         df.dropna(inplace=True)
+        print('merge df', df)
 
-        df.to_pickle(self.root+self.language+'/'+part+'/blocks.pkl')
+        df.to_pickle(self.root + self.language + '/' + part + '/blocks.pkl')
+        df.to_pickle(self.root + self.language + '/' + part + '/metrics.pkl')
+
+    # merge pairs for metrics model
+    def merge_metrics(self, data_path, part):
+        pairs = pd.read_pickle(data_path)
+        pairs['id1'] = pairs['id1'].astype(int)
+        pairs['id2'] = pairs['id2'].astype(int)
+        df = pd.merge(pairs, self.metrics, how='left',
+                      left_on='id1', right_on='id')
+        df = pd.merge(df, self.metrics, how='left',
+                      left_on='id2', right_on='id')
+        df.drop(['id_x', 'id_y'], axis=1, inplace=True)
+        df.dropna(inplace=True)
+
+        df.to_pickle(self.root + self.language + '/' + part + '/metrics.pkl')
 
     # run for processing data to train
     def run(self):
@@ -217,16 +253,24 @@ class Pipeline:
             self.read_pairs('oj_clone_ids.pkl')
         else:
             self.read_pairs('bcb_pair_ids.pkl')
-        # print('split data...')
-        # self.split_data()
-        # print('train word embedding...')
-        # self.dictionary_and_embedding(None, 128)
-        # print('generate block sequences...')
-        # self.generate_block_seqs()
-        # print('merge pairs and blocks...')
-        # self.merge(self.train_file_path, 'train')
-        # self.merge(self.dev_file_path, 'dev')
-        # self.merge(self.test_file_path, 'test')
+
+        print('calculate metrics...')
+        self.calculate_metrics('metrics.pkl')
+
+        print('split data...')
+        self.split_data()
+        print('train word embedding...')
+        self.dictionary_and_embedding(None, 128)
+        print('generate block sequences...')
+        self.generate_block_seqs()
+        print('merge pairs and blocks...')
+        self.merge(self.train_file_path, 'train')
+        self.merge(self.dev_file_path, 'dev')
+        self.merge(self.test_file_path, 'test')
+        # print('merge pairs and blocks for metrics model...')
+        # self.merge_metrics(self.train_file_path, 'train')
+        # self.merge_metrics(self.dev_file_path, 'dev')
+        # self.merge_metrics(self.test_file_path, 'test')
 
 
 @click.command()
