@@ -6,6 +6,8 @@ import warnings
 from torch.autograd import Variable
 from sklearn.metrics import precision_recall_fscore_support
 
+import model_training
+import plot
 from metrics_model import MetricsModel
 
 warnings.filterwarnings('ignore')
@@ -43,6 +45,7 @@ if __name__ == '__main__':
     EPOCHS = 5
     BATCH_SIZE = 32
     USE_GPU = False
+    THRESHOLD = 0.1
     model_filepath = 'output/metrics_model.pkl'
 
     print('Calculate means and stds...')
@@ -64,15 +67,17 @@ if __name__ == '__main__':
     loss_function = torch.nn.BCELoss()
 
     print(train_data)
+    train_loss_data, train_acc_data = [], []
     precision, recall, f1 = 0, 0, 0
     print('Start training...')
     for t in range(1, categories + 1):
         train_data_t, test_data_t = train_data, test_data
         # training procedure
         for epoch in range(EPOCHS):
+            print('epoch', epoch)
             start_time = time.time()
             # training epoch
-            total_acc = 0.0
+            predicts, trues = [], []
             total_loss = 0.0
             total = 0.0
             i = 0
@@ -88,13 +93,27 @@ if __name__ == '__main__':
                 model.batch_size = len(train_labels)
                 # model.hidden = model.init_hidden()
                 output = model(train1_inputs, train2_inputs)
-
                 loss = loss_function(output, Variable(train_labels))
                 loss.backward()
                 optimizer.step()
 
+                predicts.extend((output.data > THRESHOLD).cpu().numpy())
+                trues.extend(train_labels.cpu().numpy())
+                total += len(train_labels)
+                total_loss += loss.item() * len(train_labels)
+
+            train_acc = model_training.count_accuracy(trues, predicts)
+
+            train_acc_data.append(train_acc)
+            train_loss_data.append(total_loss / total)
+
         print("Saving model to ", model_filepath)
         torch.save(model, model_filepath)
+        print('train_loss_data', train_loss_data)
+        print('train_acc_data', train_acc_data)
+        # plot.plot_training_stats(train_loss_data, train_acc_data)
+        plot.plot_training_loss_stats(train_loss_data)
+        plot.plot_training_acc_stats(train_acc_data)
 
         print("Testing-%d..." % t)
         # testing procedure
@@ -112,17 +131,14 @@ if __name__ == '__main__':
                 test_labels = test_labels.cuda()
 
             model.batch_size = len(test_labels)
-            # model.hidden = model.init_hidden()
             output = model(test1_inputs, test2_inputs)
             # print('output i', i, output)
 
             loss = loss_function(output, Variable(test_labels))
             # print('loss i', i, loss)
-            #
-            # print('output data i', i, output.data)
 
             # calc testing acc
-            predicted = (output.data > 0.5).cpu().numpy()
+            predicted = (output.data > THRESHOLD).cpu().numpy()
             predicts.extend(predicted)
             trues.extend(test_labels.cpu().numpy())
             total += len(test_labels)

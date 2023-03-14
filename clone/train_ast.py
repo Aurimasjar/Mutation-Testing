@@ -4,9 +4,14 @@ import time
 import numpy as np
 import warnings
 from gensim.models.word2vec import Word2Vec
+
 from ast_model import BatchProgramCC
 from torch.autograd import Variable
 from sklearn.metrics import precision_recall_fscore_support
+
+import plot
+import model_training
+
 warnings.filterwarnings('ignore')
 
 
@@ -44,9 +49,10 @@ if __name__ == '__main__':
     embeddings = np.zeros((MAX_TOKENS + 1, EMBEDDING_DIM), dtype="float32")
     embeddings[:word2vec.vectors.shape[0]] = word2vec.vectors
 
-    EPOCHS = 1
+    EPOCHS = 2
     BATCH_SIZE = 32
     USE_GPU = False
+    THRESHOLD = 0.5
     model_filepath = 'output/ast_model.pkl'
 
     model = BatchProgramCC(EMBEDDING_DIM, MAX_TOKENS+1, BATCH_SIZE, embeddings)
@@ -58,6 +64,7 @@ if __name__ == '__main__':
     loss_function = torch.nn.BCELoss()
 
     print(train_data)
+    train_loss_data, train_acc_data = [], []
     precision, recall, f1 = 0, 0, 0
     print('Start training...')
     for t in range(1, categories+1):
@@ -71,8 +78,10 @@ if __name__ == '__main__':
             train_data_t, test_data_t = train_data, test_data
         # training procedure
         for epoch in range(EPOCHS):
+            print('epoch', epoch)
             start_time = time.time()
             # training epoch
+            predicts, trues = [], []
             total_acc = 0.0
             total_loss = 0.0
             total = 0.0
@@ -94,8 +103,23 @@ if __name__ == '__main__':
                 loss.backward()
                 optimizer.step()
 
+                predicts.extend((output.data > THRESHOLD).cpu().numpy())
+                trues.extend(train_labels.cpu().numpy())
+                total += len(train_labels)
+                total_loss += loss.item() * len(train_labels)
+
+            train_acc = model_training.count_accuracy(trues, predicts)
+
+            train_acc_data.append(train_acc)
+            train_loss_data.append(total_loss / total)
+
         print("Saving model to ", model_filepath)
         torch.save(model.state_dict(), model_filepath)
+        print('train_loss_data', train_loss_data)
+        print('train_acc_data', train_acc_data)
+        # plot.plot_training_stats(train_loss_data, train_acc_data)
+        plot.plot_training_loss_stats(train_loss_data)
+        plot.plot_training_acc_stats(train_acc_data)
 
         print("Testing-%d..."%t)
         # testing procedure
@@ -119,13 +143,13 @@ if __name__ == '__main__':
             loss = loss_function(output, Variable(test_labels))
 
             # calc testing acc
-            predicted = (output.data > 0.5).cpu().numpy()
+            predicted = (output.data > THRESHOLD).cpu().numpy()
             predicts.extend(predicted)
             trues.extend(test_labels.cpu().numpy())
             total += len(test_labels)
             total_loss += loss.item() * len(test_labels)
-            print('ast total', total)
-            print('ast total_loss', total_loss)
+            # print('ast total', total)
+            # print('ast total_loss', total_loss)
         if lang == 'java':
             weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]
             p, r, f, _ = precision_recall_fscore_support(trues, predicts, average='binary')
