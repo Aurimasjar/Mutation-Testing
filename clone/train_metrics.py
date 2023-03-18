@@ -40,13 +40,16 @@ if __name__ == '__main__':
     print("Train for ", str.upper(lang))
     train_data = pd.read_pickle(root + lang + '/train/metrics.pkl').sample(frac=1)
     test_data = pd.read_pickle(root + lang + '/test/metrics.pkl').sample(frac=1)
-
     METRICS_DIM = 4
-    EPOCHS = 5
+    for atd_i in range(0, len(test_data['metrics_x'])-1):
+        if isinstance(test_data['metrics_x'][atd_i], float):
+            test_data['metrics_x'][atd_i] = [0] * METRICS_DIM
+
+    EPOCHS = 2
     BATCH_SIZE = 32
     USE_GPU = False
     THRESHOLD = 0.1
-    model_filepath = 'output/metrics_model.pkl'
+    model_filepath = 'output/' + lang + '/metrics_model.pkl'
 
     print('Calculate means and stds...')
     metrics_data = []
@@ -69,20 +72,34 @@ if __name__ == '__main__':
     print(train_data)
     train_loss_data, train_acc_data = [], []
     precision, recall, f1 = 0, 0, 0
+    prf_list = []
+    print("EPOCHS, BATCH SIZE, THRESHOLD", EPOCHS, BATCH_SIZE, THRESHOLD)
+    start_time = time.time()
+    endd_time = 0
     print('Start training...')
     for t in range(1, categories + 1):
-        train_data_t, test_data_t = train_data, test_data
+        if lang == 'java':
+            train_data_t = train_data[train_data['label'].isin([t, 0])]
+            train_data_t.loc[train_data_t['label'] > 0, 'label'] = 1
+
+            test_data_t = test_data[test_data['label'].isin([t, 0])]
+            test_data_t.loc[test_data_t['label'] > 0, 'label'] = 1
+            if t != 3:
+                continue
+        else:
+            train_data_t, test_data_t = train_data, test_data
         # training procedure
         for epoch in range(EPOCHS):
             print('epoch', epoch)
-            start_time = time.time()
+            epoch_time = time.time()
+            print('epoch and start time', epoch, epoch_time)
             # training epoch
             predicts, trues = [], []
             total_loss = 0.0
             total = 0.0
             i = 0
             while i < len(train_data_t):
-                # print("train", i, " \ ", len(train_data_t))
+                print("train", i, " \ ", len(train_data_t))
                 batch = get_batch(train_data_t, i, BATCH_SIZE)
                 i += BATCH_SIZE
                 train1_inputs, train2_inputs, train_labels = batch
@@ -91,7 +108,6 @@ if __name__ == '__main__':
 
                 model.zero_grad()
                 model.batch_size = len(train_labels)
-                # model.hidden = model.init_hidden()
                 output = model(train1_inputs, train2_inputs)
                 loss = loss_function(output, Variable(train_labels))
                 loss.backward()
@@ -107,6 +123,8 @@ if __name__ == '__main__':
             train_acc_data.append(train_acc)
             train_loss_data.append(total_loss / total)
 
+        endd_time = time.time()
+        print("Training finished time", endd_time)
         print("Saving model to ", model_filepath)
         torch.save(model, model_filepath)
         print('train_loss_data', train_loss_data)
@@ -123,7 +141,7 @@ if __name__ == '__main__':
         total = 0.0
         i = 0
         while i < len(test_data_t):
-            # print("test", i, " \ ", len(test_data_t))
+            print("test", i, " \ ", len(test_data_t))
             batch = get_batch(test_data_t, i, BATCH_SIZE)
             i += BATCH_SIZE
             test1_inputs, test2_inputs, test_labels = batch
@@ -152,7 +170,14 @@ if __name__ == '__main__':
             recall += weights[t] * r
             f1 += weights[t] * f
             print("Type-" + str(t) + ": " + str(p) + " " + str(r) + " " + str(f))
+            prf_list.append([p, r, f])
         else:
             precision, recall, f1, _ = precision_recall_fscore_support(trues, predicts, average='binary')
+            prf_list.append([precision, recall, f1])
 
+    print("prf list", prf_list)
     print("Total testing results(P,R,F1):%.3f, %.3f, %.3f" % (precision, recall, f1))
+    end_time = time.time()
+    print("End time", end_time)
+    diff = endd_time - start_time
+    print("Experiment lasted ", diff, " seconds (", diff/60, "minutes)")

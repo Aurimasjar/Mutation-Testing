@@ -2,7 +2,7 @@ import torch
 
 
 def main():
-    model_filepath = 'output/metrics_model.pkl'
+    model_filepath = 'output/c/metrics_model.pkl'
     model = torch.load(model_filepath)
     model.eval()
     print('metrics model', model)
@@ -10,7 +10,7 @@ def main():
     print('metrics model eval', model.eval())
     print("metrics main finished")
 
-    model_filepath = 'output/ast_model.pkl'
+    model_filepath = 'output/c/ast_model.pkl'
     model = torch.load(model_filepath)
     model.eval()
     print('ast model', model)

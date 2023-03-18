@@ -56,7 +56,11 @@ if __name__ == '__main__':
         categories = 5
     print("Test for ", str.upper(lang))
     ast_test_data = pd.read_pickle(root + lang + '/test/blocks.pkl').sample(frac=1)
+    for atd_i in range(0, len(ast_test_data['code_x'])-1):
+        if isinstance(ast_test_data['code_x'][atd_i], float):
+            ast_test_data['code_x'][atd_i] = [[1]]
     metrics_test_data = pd.read_pickle(root + lang + '/test/metrics.pkl').sample(frac=1)
+
 
     word2vec = Word2Vec.load(root + lang + "/train/embedding/node_w2v_128").wv
     MAX_TOKENS = word2vec.vectors.shape[0]
@@ -64,15 +68,19 @@ if __name__ == '__main__':
     embeddings = np.zeros((MAX_TOKENS + 1, EMBEDDING_DIM), dtype="float32")
     embeddings[:word2vec.vectors.shape[0]] = word2vec.vectors
 
+
     METRICS_DIM = 4
+    for atd_i in range(0, len(metrics_test_data['metrics_x'])-1):
+        if isinstance(metrics_test_data['metrics_x'][atd_i], float):
+            metrics_test_data['metrics_x'][atd_i] = [0] * METRICS_DIM
     BATCH_SIZE = 32
     USE_GPU = False
-    ast_model_filepath = 'output/ast_model.pkl'
-    metrics_model_filepath = 'output/metrics_model.pkl'
-    # means, stds = [], []
+    ast_model_filepath = 'output/' + lang + '/ast_model.pkl'
+    metrics_model_filepath = 'output/' + lang + '/metrics_model.pkl'
+    means, stds = [], []
 
     ast_model = BatchProgramCC(EMBEDDING_DIM, MAX_TOKENS + 1, BATCH_SIZE, embeddings)
-    # metrics_model = MetricsModel(METRICS_DIM, BATCH_SIZE, means, stds)
+    metrics_model = MetricsModel(METRICS_DIM, BATCH_SIZE, means, stds)
     if USE_GPU:
         ast_model.cuda()
 
@@ -80,19 +88,24 @@ if __name__ == '__main__':
 
     ast_precision, ast_recall, ast_f1 = 0, 0, 0
     metrics_precision, metrics_recall, metrics_f1 = 0, 0, 0
+    prf_ast_list = []
+    prf_metrics_list = []
     for t in range(1, categories + 1):
-        # if lang == 'java':
-        #     ast_test_data_t = ast_test_data[ast_test_data['label'].isin([t, 0])]
-        #     ast_test_data_t.loc[ast_test_data_t['label'] > 0, 'label'] = 1
-        # else:
-        ast_test_data_t = ast_test_data
-        metrics_test_data_t = metrics_test_data
+        if lang == 'java':
+            ast_test_data_t = ast_test_data[ast_test_data['label'].isin([t, 0])]
+            ast_test_data_t.loc[ast_test_data_t['label'] > 0, 'label'] = 1
+            metrics_test_data_t = metrics_test_data
+        else:
+            ast_test_data_t = ast_test_data
+            metrics_test_data_t = metrics_test_data
 
         print("Load ast model from ", ast_model_filepath)
         ast_model.load_state_dict(torch.load(ast_model_filepath))
+        ast_model.eval()
         print("Load metrics model from ", metrics_model_filepath)
-        # metrics_model.load_state_dict(torch.load(metrics_model_filepath))
+        metrics_model.load_state_dict(torch.load(metrics_model_filepath))
         metrics_model = torch.load(metrics_model_filepath)
+        metrics_model.eval()
 
         print("Testing ast - %d..." % t)
         # testing procedure
@@ -121,7 +134,6 @@ if __name__ == '__main__':
             ast_loss = loss_function(ast_output, Variable(ast_test_labels))
 
             metrics_model.batch_size = len(metrics_test_labels)
-            # metrics_model.hidden = metrics_model.init_hidden()
             metrics_output = metrics_model(metrics_test1_inputs, metrics_test2_inputs)
             metrics_loss = loss_function(metrics_output, Variable(metrics_test_labels))
             print('i, metrics output', i, metrics_output)
@@ -146,21 +158,32 @@ if __name__ == '__main__':
 
             # print('trueslab, astpred, metricspred', tuple(zip(ast_test_labels, ast_predicted, metrics_predicted)))
             # print('trues, astpr, metricspr', trues, ast_predicts, metrics_predicts)
-        # if lang == 'java':
-        #     weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]
-        #     p, r, f, _ = precision_recall_fscore_support(trues, ast_predicts, average='binary')
-        #     ast_precision += weights[t] * p
-        #     ast_recall += weights[t] * r
-        #     ast_f1 += weights[t] * f
-        #     print("Type-" + str(t) + ": " + str(p) + " " + str(r) + " " + str(f))
-        # else:
-        ast_precision, ast_recall, ast_f1, _ = precision_recall_fscore_support(trues, ast_predicts, average='binary')
-        metrics_precision, metrics_recall, metrics_f1, _ = precision_recall_fscore_support(trues, metrics_predicts, average='binary')
-        # ast_precision, ast_recall, ast_f1, _ = precision_recall_fscore_support(trues, ast_predicts, average='weighted')
-        # metrics_precision, metrics_recall, metrics_f1, _ = precision_recall_fscore_support(trues, metrics_predicts, average='weighted')
-        print('lens of trues, astpr, metricspr', len(trues), len(ast_predicts), len(metrics_predicts))
-        print('trues of trues, astpr, metricspr', get_trues_count(trues), get_trues_count(ast_predicts), get_trues_count(metrics_predicts))
-        print('trues, astpr, metricspr', trues, ast_predicts, metrics_predicts)
+        if lang == 'java':
+            weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]
 
+            ast_p, ast_r, ast_f, _ = precision_recall_fscore_support(trues, ast_predicts, average='binary')
+            ast_precision += weights[t] * ast_p
+            ast_recall += weights[t] * ast_r
+            ast_f1 += weights[t] * ast_f
+            prf_ast_list.append([ast_p, ast_r, ast_f])
+            print("Type-" + str(t) + ": " + str(ast_p) + " " + str(ast_r) + " " + str(ast_f))
+
+            metrics_p, metrics_r, metrics_f, _ = precision_recall_fscore_support(trues, metrics_predicts, average='binary')
+            metrics_precision += weights[t] * metrics_p
+            metrics_recall += weights[t] * metrics_r
+            metrics_f1 += weights[t] * metrics_f
+            prf_metrics_list.append([metrics_p, metrics_r, metrics_f])
+            print("Type-" + str(t) + ": " + str(metrics_p) + " " + str(metrics_r) + " " + str(metrics_f))
+        else:
+            ast_precision, ast_recall, ast_f1, _ = precision_recall_fscore_support(trues, ast_predicts, average='binary')
+            metrics_precision, metrics_recall, metrics_f1, _ = precision_recall_fscore_support(trues, metrics_predicts, average='binary')
+            # ast_precision, ast_recall, ast_f1, _ = precision_recall_fscore_support(trues, ast_predicts, average='weighted')
+            # metrics_precision, metrics_recall, metrics_f1, _ = precision_recall_fscore_support(trues, metrics_predicts, average='weighted')
+            print('lens of trues, astpr, metricspr', len(trues), len(ast_predicts), len(metrics_predicts))
+            print('trues of trues, astpr, metricspr', get_trues_count(trues), get_trues_count(ast_predicts), get_trues_count(metrics_predicts))
+            print('trues, astpr, metricspr', trues, ast_predicts, metrics_predicts)
+
+    print("prf metrics list", prf_metrics_list)
+    print("prf ast list", prf_ast_list)
     print("Total ast testing results(P,R,F1):%.3f, %.3f, %.3f" % (ast_precision, ast_recall, ast_f1))
     print("Total metrics testing results(P,R,F1):%.3f, %.3f, %.3f" % (metrics_precision, metrics_recall, metrics_f1))

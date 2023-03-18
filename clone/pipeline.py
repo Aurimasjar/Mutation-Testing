@@ -60,6 +60,7 @@ class Pipeline:
                 parser = c_parser.CParser()
                 source = pd.read_pickle(input_path)
                 source.columns = ['id', 'code', 'label']
+                source['code'] = []
                 source['code'] = source['code'].progress_apply(parser.parse)
                 source.to_pickle(output_path)
             else:
@@ -86,15 +87,22 @@ class Pipeline:
         """
         pairs = pd.read_pickle(os.path.join(self.root, self.language,
                                             filename))
+        # fix pairs list by removing pairs with non-existent code ids from the original bcb dataset
+        filtered_pairs = pairs[~pairs['id1'].isin(
+            [1032896, 74, 2524323, 5180407, 8643644, 15503077, 12639648, 19727309, 20395377, 8040734, 22237273]
+        )]
         # print('pairs', pairs)
-        self.pairs = pairs
+        self.pairs = filtered_pairs
 
     # calculate metrics for each ast
     def calculate_metrics(self, output_file):
         # trees = pd.DataFrame(self.sources, copy=True)
         # self.sources['metrics']
         # self.metrics = metrics.calculate_metrics(self.sources['code'])
-        self.metrics = pd.DataFrame(self.sources['code'].progress_apply(metrics.calculate_metrics))
+        if self.language == 'c':
+            self.metrics = pd.DataFrame(self.sources['code'].progress_apply(metrics.calculate_c_metrics))
+        else:
+            self.metrics = pd.DataFrame(self.sources['code'].progress_apply(metrics.calculate_java_metrics))
         print('self.metrics', self.metrics)
         self.sources['metrics'] = self.metrics
         output_path = os.path.join(self.root, self.language, output_file)
@@ -148,9 +156,9 @@ class Pipeline:
             os.mkdir(data_path + 'train/embedding')
         if self.language == 'c':
             sys.path.append('../')
-            from prepare_data import get_sequences as func
+            from prepare_data_c import get_sequences as func
         else:
-            from utils import get_sequence as func
+            from prepare_data_java import get_sequence as func
 
         def trans_to_sequences(ast):
             sequence = []
@@ -171,9 +179,9 @@ class Pipeline:
     # generate block sequences with index representations
     def generate_block_seqs(self):
         if self.language == 'c':
-            from prepare_data import get_blocks as func
+            from prepare_data_c import get_blocks as func
         else:
-            from utils import get_blocks_v1 as func
+            from prepare_data_java import get_blocks_v1 as func
         from gensim.models.word2vec import Word2Vec
 
         word2vec = Word2Vec.load(
@@ -216,7 +224,7 @@ class Pipeline:
         df = pd.merge(df, self.blocks, how='left',
                       left_on='id2', right_on='id')
         df.drop(['id_x', 'id_y'], axis=1, inplace=True)
-        df.dropna(inplace=True)
+        # df.dropna(inplace=True) # todo uncomment when metrics for java code are calculated
         print('merge df', df)
 
         df.to_pickle(self.root + self.language + '/' + part + '/blocks.pkl')
@@ -267,6 +275,7 @@ class Pipeline:
         self.merge(self.train_file_path, 'train')
         self.merge(self.dev_file_path, 'dev')
         self.merge(self.test_file_path, 'test')
+
         # print('merge pairs and blocks for metrics model...')
         # self.merge_metrics(self.train_file_path, 'train')
         # self.merge_metrics(self.dev_file_path, 'dev')
