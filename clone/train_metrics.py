@@ -40,15 +40,15 @@ if __name__ == '__main__':
     print("Train for ", str.upper(lang))
     train_data = pd.read_pickle(root + lang + '/train/metrics.pkl').sample(frac=1)
     test_data = pd.read_pickle(root + lang + '/test/metrics.pkl').sample(frac=1)
-    METRICS_DIM = 4
+    METRICS_DIM = 57
     for atd_i in range(0, len(test_data['metrics_x'])-1):
         if isinstance(test_data['metrics_x'][atd_i], float):
             test_data['metrics_x'][atd_i] = [0] * METRICS_DIM
 
-    EPOCHS = 2
+    EPOCHS = 10
     BATCH_SIZE = 32
     USE_GPU = False
-    THRESHOLD = 0.1
+    THRESHOLD = 0.5
     model_filepath = 'output/' + lang + '/metrics_model.pkl'
 
     print('Calculate means and stds...')
@@ -68,6 +68,7 @@ if __name__ == '__main__':
     parameters = model.parameters()
     optimizer = torch.optim.Adamax(parameters)
     loss_function = torch.nn.BCELoss()
+    # loss_function = torch.nn.BCEWithLogitsLoss()
 
     print(train_data)
     train_loss_data, train_acc_data = [], []
@@ -99,7 +100,8 @@ if __name__ == '__main__':
             total = 0.0
             i = 0
             while i < len(train_data_t):
-                print("train", i, " \ ", len(train_data_t))
+                # print("train", i, " \ ", len(train_data_t))
+                # model.half() # ...
                 batch = get_batch(train_data_t, i, BATCH_SIZE)
                 i += BATCH_SIZE
                 train1_inputs, train2_inputs, train_labels = batch
@@ -109,8 +111,10 @@ if __name__ == '__main__':
                 model.zero_grad()
                 model.batch_size = len(train_labels)
                 output = model(train1_inputs, train2_inputs)
+                # output = torch.clamp(output, 1e-9, 1 - 1e-9)
                 loss = loss_function(output, Variable(train_labels))
                 loss.backward()
+                # model.float() # ...
                 optimizer.step()
 
                 predicts.extend((output.data > THRESHOLD).cpu().numpy())
@@ -141,7 +145,7 @@ if __name__ == '__main__':
         total = 0.0
         i = 0
         while i < len(test_data_t):
-            print("test", i, " \ ", len(test_data_t))
+            # print("test", i, " \ ", len(test_data_t))
             batch = get_batch(test_data_t, i, BATCH_SIZE)
             i += BATCH_SIZE
             test1_inputs, test2_inputs, test_labels = batch
@@ -157,6 +161,7 @@ if __name__ == '__main__':
 
             # calc testing acc
             predicted = (output.data > THRESHOLD).cpu().numpy()
+            # print("predicted", output.data, predicted)
             predicts.extend(predicted)
             trues.extend(test_labels.cpu().numpy())
             total += len(test_labels)

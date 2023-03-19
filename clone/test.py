@@ -69,7 +69,7 @@ if __name__ == '__main__':
     embeddings[:word2vec.vectors.shape[0]] = word2vec.vectors
 
 
-    METRICS_DIM = 4
+    METRICS_DIM = 57
     for atd_i in range(0, len(metrics_test_data['metrics_x'])-1):
         if isinstance(metrics_test_data['metrics_x'][atd_i], float):
             metrics_test_data['metrics_x'][atd_i] = [0] * METRICS_DIM

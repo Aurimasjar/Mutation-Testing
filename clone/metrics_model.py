@@ -23,12 +23,19 @@ class MetricsModel(nn.Module):
 
     def encode(self, x):
         x = torch.tensor(x).float()
-        normalized_x = ((x - torch.tensor(self.means)) / torch.tensor(self.stds)).float()
+
+        up = x - torch.tensor(self.means)
+        den = torch.tensor(self.stds)
+        normalized_x = torch.where(den <= 1e-6, torch.zeros_like(den), up / den).float()
+        # normalized_x = ((x - torch.tensor(self.means)) / torch.tensor(self.stds)).float()
         # normalized_x = ((x - torch.tensor(self.means) + 0.5) / (2 * torch.tensor(self.stds))).float()
         # TODO alternative: use torch.nn.functional.normalize()
         return normalized_x
+        # return torch.sigmoid(normalized_x)
 
     def forward(self, x1, x2):
+        testtensor = torch.randn(32, self.metrics_dim)
+
         x1, x2 = self.encode(x1), self.encode(x2)
         x1, x2 = self.l1(x1), self.l1(x2)
         x1, x2 = self.l2(x1), self.l2(x2)
@@ -40,6 +47,7 @@ class MetricsModel(nn.Module):
         x = self.l7(x)
         x = self.l8(x)
         x = self.l9(x)
+        # y = x
         y = torch.sigmoid(x)
-        # y = torch.softmax(x)
+        # y = torch.softmax(x, dim=1)
         return y

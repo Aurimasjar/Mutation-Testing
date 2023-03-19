@@ -88,11 +88,8 @@ def calculate_c_metrics(ast):
     node_count = get_node_count_c(ast)
     max_depth = get_max_depth_c(ast)
 
-    # return Metrics(if_count, assignment_count, leaf_count, max_depth)  # 54 list params, 2 tree params
-    # return {'if_count': if_count, 'assignment_count': assignment_count, 'leaf_count': leaf_count,
-    #         'max_depth': max_depth}
-    return [if_count, assignment_count, leaf_count, max_depth]
-    # return pd.Series([if_count, assignment_count, leaf_count, max_depth])
+    # return [if_count, assignment_count, leaf_count, max_depth]
+    return [if_count, for_count, while_count, do_while_count, break_count, continue_count, func_call_count, return_count, cast_count, typename_count, decl_count, comp_count, end_count, ref_count, list_count, char_count, unsigned_char_count, signed_char_count, int_count, unsigned_int_count, short_count, unsigned_short_count, long_count, unsigned_long_count, float_count, double_count, long_double_count, bool_count, void_count, assignment_count, is_lower_count, is_upper_count, is_lower_or_equal_count, is_upper_or_equal_count, is_equal_count, plus_count, minus_count, mul_count, div_count, rem_count, addr_count, ternary_op_count, strlen_count, strcpy_count, min_count, max_count, sqrt_count, sizeof_count, malloc_count, calloc_count, realloc_count, free_count, printf_count, scanf_count, leaf_count, node_count, max_depth]
 
 
 
