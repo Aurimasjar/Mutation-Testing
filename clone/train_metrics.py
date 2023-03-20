@@ -40,7 +40,7 @@ if __name__ == '__main__':
     print("Train for ", str.upper(lang))
     train_data = pd.read_pickle(root + lang + '/train/metrics.pkl').sample(frac=1)
     test_data = pd.read_pickle(root + lang + '/test/metrics.pkl').sample(frac=1)
-    METRICS_DIM = 57
+    METRICS_DIM = 75
     for atd_i in range(0, len(test_data['metrics_x'])-1):
         if isinstance(test_data['metrics_x'][atd_i], float):
             test_data['metrics_x'][atd_i] = [0] * METRICS_DIM
@@ -168,6 +168,8 @@ if __name__ == '__main__':
             total_loss += loss.item() * len(test_labels)
             # print('metrics total', total)
             # print('metrics total_loss', total_loss)
+
+        plot.plot_confusion_matrix(predicts, trues)
         if lang == 'java':
             weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]
             p, r, f, _ = precision_recall_fscore_support(trues, predicts, average='binary')

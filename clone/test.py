@@ -8,6 +8,7 @@ from ast_model import BatchProgramCC
 from torch.autograd import Variable
 from sklearn.metrics import precision_recall_fscore_support
 
+from clone import plot
 from metrics_model import MetricsModel
 
 warnings.filterwarnings('ignore')
@@ -158,6 +159,9 @@ if __name__ == '__main__':
 
             # print('trueslab, astpred, metricspred', tuple(zip(ast_test_labels, ast_predicted, metrics_predicted)))
             # print('trues, astpr, metricspr', trues, ast_predicts, metrics_predicts)
+
+        plot.plot_confusion_matrix(ast_predicts, trues)
+        plot.plot_confusion_matrix(metrics_predicts, trues)
         if lang == 'java':
             weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]
 

@@ -100,6 +100,7 @@ class Pipeline:
         # self.sources['metrics']
         # self.metrics = metrics.calculate_metrics(self.sources['code'])
         if self.language == 'c':
+            # self.metrics = pd.DataFrame(metrics.calculate_c_metrics(self.sources['code'].iloc[0]))
             self.metrics = pd.DataFrame(self.sources['code'].progress_apply(metrics.calculate_c_metrics))
         else:
             self.metrics = pd.DataFrame(self.sources['code'].progress_apply(metrics.calculate_java_metrics))

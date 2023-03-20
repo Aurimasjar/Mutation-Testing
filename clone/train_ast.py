@@ -159,6 +159,8 @@ if __name__ == '__main__':
             total_loss += loss.item() * len(test_labels)
             # print('ast total', total)
             # print('ast total_loss', total_loss)
+
+        plot.plot_confusion_matrix(predicts, trues)
         if lang == 'java':
             weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]
             p, r, f, _ = precision_recall_fscore_support(trues, predicts, average='binary')

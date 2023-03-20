@@ -1,4 +1,8 @@
+import itertools
+
+import numpy as np
 from matplotlib import pyplot as plt
+from sklearn.metrics import confusion_matrix
 
 
 def plot_training_stats(train_loss, train_acc):
@@ -11,6 +15,7 @@ def plot_training_stats(train_loss, train_acc):
     plt.legend()
     plt.show()
 
+
 def plot_training_loss_stats(vector):
     epochs = len(vector)
     plt.plot(range(epochs), vector, label='Modelio mokymo praradimo funkcija')
@@ -20,6 +25,7 @@ def plot_training_loss_stats(vector):
     plt.legend()
     plt.show()
 
+
 def plot_training_acc_stats(vector):
     epochs = len(vector)
     plt.plot(range(epochs), vector, label='Modelio mokymo tikslumo funkcija')
@@ -27,4 +33,25 @@ def plot_training_acc_stats(vector):
     plt.ylabel('Tikslumas')
     plt.title('Modelio mokymo tikslumas')
     plt.legend()
+    plt.show()
+
+
+def plot_confusion_matrix(predicts, trues):
+    cm = confusion_matrix(np.array(predicts), np.array(trues))
+    plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    plt.colorbar()
+    tick_marks = np.arange(2)
+    plt.xticks(tick_marks, ['Neigiamas', 'Teigiamas'], rotation=45)
+    plt.yticks(tick_marks, ['Neigiamas', 'Teigiamas'])
+
+    # annotate the confusion matrix with the values
+    thresh = cm.max() / 2.
+    for i, j in np.ndindex(cm.shape):
+        plt.text(j, i, format(cm[i, j], 'd'),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('Tiesos žymė')
+    plt.xlabel('Spėjimas')
     plt.show()
