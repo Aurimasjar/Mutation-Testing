@@ -8,7 +8,7 @@ from ast_model import BatchProgramCC
 from torch.autograd import Variable
 from sklearn.metrics import precision_recall_fscore_support
 
-from clone import plot
+import plot
 from metrics_model import MetricsModel
 
 warnings.filterwarnings('ignore')
@@ -33,6 +33,17 @@ def get_metrics_batch(dataset, idx, bs):
         labels.append([item['label']])
     return x1, x2, torch.FloatTensor(labels)
 
+def get_batch(dataset, idx, bs):
+    tmp = dataset.iloc[idx: idx + bs]
+    code_x, code_y, metrics_x, metrics_y, labels = [], [], [], [], []
+    for _, item in tmp.iterrows():
+        code_x.append(item['code_x'])
+        code_y.append(item['code_y'])
+        metrics_x.append(item['metrics_x'])
+        metrics_y.append(item['metrics_y'])
+        labels.append([item['label']])
+    return code_x, code_y, metrics_x, metrics_y, torch.FloatTensor(labels)
+
 def get_trues_count(arr):
     count = 0
     for x in arr:
@@ -56,12 +67,13 @@ if __name__ == '__main__':
     if lang == 'java':
         categories = 5
     print("Test for ", str.upper(lang))
-    ast_test_data = pd.read_pickle(root + lang + '/test/blocks.pkl').sample(frac=1)
-    for atd_i in range(0, len(ast_test_data['code_x'])-1):
-        if isinstance(ast_test_data['code_x'][atd_i], float):
-            ast_test_data['code_x'][atd_i] = [[1]]
+    # ast_test_data = pd.read_pickle(root + lang + '/test/blocks.pkl').sample(frac=1)
+    ast_test_data = pd.read_pickle(root + lang + '/test/metrics.pkl').sample(frac=1)
+    if lang == 'java':
+        for atd_i in range(0, len(ast_test_data['code_x'])-1):
+            if isinstance(ast_test_data['code_x'][atd_i], float):
+                ast_test_data['code_x'][atd_i] = [[1]]
     metrics_test_data = pd.read_pickle(root + lang + '/test/metrics.pkl').sample(frac=1)
-
 
     word2vec = Word2Vec.load(root + lang + "/train/embedding/node_w2v_128").wv
     MAX_TOKENS = word2vec.vectors.shape[0]
@@ -70,15 +82,17 @@ if __name__ == '__main__':
     embeddings[:word2vec.vectors.shape[0]] = word2vec.vectors
 
 
-    METRICS_DIM = 57
+    METRICS_DIM = 75
     for atd_i in range(0, len(metrics_test_data['metrics_x'])-1):
         if isinstance(metrics_test_data['metrics_x'][atd_i], float):
             metrics_test_data['metrics_x'][atd_i] = [0] * METRICS_DIM
     BATCH_SIZE = 32
     USE_GPU = False
     ast_model_filepath = 'output/' + lang + '/ast_model.pkl'
-    metrics_model_filepath = 'output/' + lang + '/metrics_model.pkl'
-    means, stds = [], []
+    metrics_model_filepath = 'outputtest/' + lang + '/metrics_model.pkl'
+    metadata = pd.read_pickle(root + lang + '/train' + '/metadata.pkl')
+    # [means, stds] = pd.read_pickle(root + lang + '/train' + '/metadata.pkl')
+    means, stds = metadata['means'].tolist(), metadata['stds'].tolist()
 
     ast_model = BatchProgramCC(EMBEDDING_DIM, MAX_TOKENS + 1, BATCH_SIZE, embeddings)
     metrics_model = MetricsModel(METRICS_DIM, BATCH_SIZE, means, stds)
@@ -95,7 +109,10 @@ if __name__ == '__main__':
         if lang == 'java':
             ast_test_data_t = ast_test_data[ast_test_data['label'].isin([t, 0])]
             ast_test_data_t.loc[ast_test_data_t['label'] > 0, 'label'] = 1
-            metrics_test_data_t = metrics_test_data
+            metrics_test_data_t = metrics_test_data[metrics_test_data['label'].isin([t, 0])]
+            metrics_test_data_t.loc[metrics_test_data['label'] > 0, 'label'] = 1
+            if t != 3:
+                continue
         else:
             ast_test_data_t = ast_test_data
             metrics_test_data_t = metrics_test_data
@@ -105,7 +122,7 @@ if __name__ == '__main__':
         ast_model.eval()
         print("Load metrics model from ", metrics_model_filepath)
         metrics_model.load_state_dict(torch.load(metrics_model_filepath))
-        metrics_model = torch.load(metrics_model_filepath)
+        # metrics_model = torch.load(metrics_model_filepath)
         metrics_model.eval()
 
         print("Testing ast - %d..." % t)
@@ -129,6 +146,11 @@ if __name__ == '__main__':
             if USE_GPU:
                 ast_test_labels = ast_test_labels.cuda()
 
+            print('len(ast_test_labels), len(metrics_test_labels) = ', len(ast_test_labels), len(metrics_test_labels))
+            for i in range(0, len(ast_test_labels)):
+                if ast_test_labels[i] != metrics_test_labels[i]:
+                    print("Fault", ast_test_labels[i], metrics_test_labels[i], i)
+
             ast_model.batch_size = len(ast_test_labels)
             ast_model.hidden = ast_model.init_hidden()
             ast_output = ast_model(ast_test1_inputs, ast_test2_inputs)
@@ -137,8 +159,8 @@ if __name__ == '__main__':
             metrics_model.batch_size = len(metrics_test_labels)
             metrics_output = metrics_model(metrics_test1_inputs, metrics_test2_inputs)
             metrics_loss = loss_function(metrics_output, Variable(metrics_test_labels))
-            print('i, metrics output', i, metrics_output)
-            print('i, metrics loss', i, metrics_loss)
+            # print('i, metrics output', i, metrics_output)
+            # print('i, metrics loss', i, metrics_loss)
 
             # calc testing acc
             ast_predicted = (ast_output.data > 0.5).cpu().numpy()
@@ -146,16 +168,15 @@ if __name__ == '__main__':
             trues.extend(ast_test_labels.cpu().numpy())
             ast_total += len(ast_test_labels)
             ast_total_loss += ast_loss.item() * len(ast_test_labels)
-            print('ast total', ast_total)
-            print('ast total_loss', ast_total_loss)
-            # todo investigate why 0.5 can't be taken as a threshold
-            metrics_predicted = (metrics_output.data > 0.1).cpu().numpy()
+            # print('ast total', ast_total)
+            # print('ast total_loss', ast_total_loss)
+            metrics_predicted = (metrics_output.data > 0.5).cpu().numpy()
             metrics_predicts.extend(metrics_predicted)
             # trues.extend(metrics_test_labels.cpu().numpy())
             metrics_total += len(metrics_test_labels)
             metrics_total_loss += metrics_loss.item() * len(metrics_test_labels)
-            print('metrics total', metrics_total)
-            print('metrics total_loss', metrics_total_loss)
+            # print('metrics total', metrics_total)
+            # print('metrics total_loss', metrics_total_loss)
 
             # print('trueslab, astpred, metricspred', tuple(zip(ast_test_labels, ast_predicted, metrics_predicted)))
             # print('trues, astpr, metricspr', trues, ast_predicts, metrics_predicts)
@@ -185,7 +206,7 @@ if __name__ == '__main__':
             # metrics_precision, metrics_recall, metrics_f1, _ = precision_recall_fscore_support(trues, metrics_predicts, average='weighted')
             print('lens of trues, astpr, metricspr', len(trues), len(ast_predicts), len(metrics_predicts))
             print('trues of trues, astpr, metricspr', get_trues_count(trues), get_trues_count(ast_predicts), get_trues_count(metrics_predicts))
-            print('trues, astpr, metricspr', trues, ast_predicts, metrics_predicts)
+            # print('trues, astpr, metricspr', trues, ast_predicts, metrics_predicts)
 
     print("prf metrics list", prf_metrics_list)
     print("prf ast list", prf_ast_list)

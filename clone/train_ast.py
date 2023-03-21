@@ -42,9 +42,10 @@ if __name__ == '__main__':
     print("Train for ", str.upper(lang))
     train_data = pd.read_pickle(root+lang+'/train/blocks.pkl').sample(frac=1)
     test_data = pd.read_pickle(root+lang+'/test/blocks.pkl').sample(frac=1)
-    for atd_i in range(0, len(test_data['code_x'])-1):
-        if isinstance(test_data['code_x'][atd_i], float):
-            test_data['code_x'][atd_i] = [[1]]
+    if lang == 'java':
+        for atd_i in range(0, len(test_data['code_x'])-1):
+            if isinstance(test_data['code_x'][atd_i], float):
+                test_data['code_x'][atd_i] = [[1]]
 
     word2vec = Word2Vec.load(root+lang+"/train/embedding/node_w2v_128").wv
     MAX_TOKENS = word2vec.vectors.shape[0]

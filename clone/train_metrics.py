@@ -49,7 +49,7 @@ if __name__ == '__main__':
     BATCH_SIZE = 32
     USE_GPU = False
     THRESHOLD = 0.5
-    model_filepath = 'output/' + lang + '/metrics_model.pkl'
+    model_filepath = 'outputtest/' + lang + '/metrics_model.pkl'
 
     print('Calculate means and stds...')
     metrics_data = []
@@ -59,6 +59,8 @@ if __name__ == '__main__':
     metrics_data = [np.array(list(x)) for x in zip(*metrics_data)]
     means = [np.mean(x) for x in metrics_data]
     stds = [np.std(x) for x in metrics_data]
+    metadata = pd.DataFrame({'means': means, 'stds': stds})
+    metadata.to_pickle((root + lang + '/train' + '/metadata.pkl'))
 
     print('Create model...')
     model = MetricsModel(METRICS_DIM, BATCH_SIZE, means, stds)
@@ -130,7 +132,7 @@ if __name__ == '__main__':
         endd_time = time.time()
         print("Training finished time", endd_time)
         print("Saving model to ", model_filepath)
-        torch.save(model, model_filepath)
+        torch.save(model.state_dict(), model_filepath)
         print('train_loss_data', train_loss_data)
         print('train_acc_data', train_acc_data)
         # plot.plot_training_stats(train_loss_data, train_acc_data)

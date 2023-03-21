@@ -52,6 +52,6 @@ def plot_confusion_matrix(predicts, trues):
                  color="white" if cm[i, j] > thresh else "black")
 
     plt.tight_layout()
-    plt.ylabel('Tiesos žymė')
-    plt.xlabel('Spėjimas')
+    plt.xlabel('Tiesos žymė')
+    plt.ylabel('Spėjimas')
     plt.show()

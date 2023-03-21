@@ -34,7 +34,6 @@ class MetricsModel(nn.Module):
         # return torch.sigmoid(normalized_x)
 
     def forward(self, x1, x2):
-        testtensor = torch.randn(32, self.metrics_dim)
 
         x1, x2 = self.encode(x1), self.encode(x2)
         x1, x2 = self.l1(x1), self.l1(x2)
