@@ -1,6 +1,5 @@
 import pandas as pd
 import torch
-import time
 import numpy as np
 import warnings
 from gensim.models.word2vec import Word2Vec
@@ -67,13 +66,11 @@ if __name__ == '__main__':
     if lang == 'java':
         categories = 5
     print("Test for ", str.upper(lang))
-    # ast_test_data = pd.read_pickle(root + lang + '/test/blocks.pkl').sample(frac=1)
-    ast_test_data = pd.read_pickle(root + lang + '/test/metrics.pkl').sample(frac=1)
+    test_data = pd.read_pickle(root + lang + '/test/metrics.pkl').sample(frac=1)
     if lang == 'java':
-        for atd_i in range(0, len(ast_test_data['code_x'])-1):
-            if isinstance(ast_test_data['code_x'][atd_i], float):
-                ast_test_data['code_x'][atd_i] = [[1]]
-    metrics_test_data = pd.read_pickle(root + lang + '/test/metrics.pkl').sample(frac=1)
+        for atd_i in range(0, len(test_data['code_x'])-1):
+            if isinstance(test_data['code_x'][atd_i], float):
+                test_data['code_x'][atd_i] = [[1]]
 
     word2vec = Word2Vec.load(root + lang + "/train/embedding/node_w2v_128").wv
     MAX_TOKENS = word2vec.vectors.shape[0]
@@ -83,15 +80,11 @@ if __name__ == '__main__':
 
 
     METRICS_DIM = 75
-    for atd_i in range(0, len(metrics_test_data['metrics_x'])-1):
-        if isinstance(metrics_test_data['metrics_x'][atd_i], float):
-            metrics_test_data['metrics_x'][atd_i] = [0] * METRICS_DIM
     BATCH_SIZE = 32
     USE_GPU = False
     ast_model_filepath = 'output/' + lang + '/ast_model.pkl'
     metrics_model_filepath = 'outputtest/' + lang + '/metrics_model.pkl'
     metadata = pd.read_pickle(root + lang + '/train' + '/metadata.pkl')
-    # [means, stds] = pd.read_pickle(root + lang + '/train' + '/metadata.pkl')
     means, stds = metadata['means'].tolist(), metadata['stds'].tolist()
 
     ast_model = BatchProgramCC(EMBEDDING_DIM, MAX_TOKENS + 1, BATCH_SIZE, embeddings)
@@ -107,22 +100,18 @@ if __name__ == '__main__':
     prf_metrics_list = []
     for t in range(1, categories + 1):
         if lang == 'java':
-            ast_test_data_t = ast_test_data[ast_test_data['label'].isin([t, 0])]
-            ast_test_data_t.loc[ast_test_data_t['label'] > 0, 'label'] = 1
-            metrics_test_data_t = metrics_test_data[metrics_test_data['label'].isin([t, 0])]
-            metrics_test_data_t.loc[metrics_test_data['label'] > 0, 'label'] = 1
+            test_data_t = test_data[test_data['label'].isin([t, 0])]
+            test_data_t.loc[test_data_t['label'] > 0, 'label'] = 1
             if t != 3:
                 continue
         else:
-            ast_test_data_t = ast_test_data
-            metrics_test_data_t = metrics_test_data
+            test_data_t = test_data
 
         print("Load ast model from ", ast_model_filepath)
         ast_model.load_state_dict(torch.load(ast_model_filepath))
         ast_model.eval()
         print("Load metrics model from ", metrics_model_filepath)
         metrics_model.load_state_dict(torch.load(metrics_model_filepath))
-        # metrics_model = torch.load(metrics_model_filepath)
         metrics_model.eval()
 
         print("Testing ast - %d..." % t)
@@ -135,46 +124,37 @@ if __name__ == '__main__':
         metrics_total_loss = 0.0
         metrics_total = 0.0
         i = 0
-        print('len(ast_test_data), len(metrics_test_data) = ', len(ast_test_data), len(metrics_test_data))
-        while i < len(ast_test_data_t):
-            print("test", i, " \ ", len(ast_test_data_t))
-            ast_batch = get_ast_batch(ast_test_data_t, i, BATCH_SIZE)
-            metrics_batch = get_metrics_batch(metrics_test_data_t, i, BATCH_SIZE)
+        while i < len(test_data_t):
+            print("test", i, " \ ", len(test_data_t))
+            batch = get_batch(test_data_t, i, BATCH_SIZE)
             i += BATCH_SIZE
-            ast_test1_inputs, ast_test2_inputs, ast_test_labels = ast_batch
-            metrics_test1_inputs, metrics_test2_inputs, metrics_test_labels = metrics_batch
+            ast_test1_inputs, ast_test2_inputs, metrics_test1_inputs, metrics_test2_inputs, test_labels = batch
             if USE_GPU:
-                ast_test_labels = ast_test_labels.cuda()
+                ast_test_labels = test_labels.cuda()
 
-            print('len(ast_test_labels), len(metrics_test_labels) = ', len(ast_test_labels), len(metrics_test_labels))
-            for i in range(0, len(ast_test_labels)):
-                if ast_test_labels[i] != metrics_test_labels[i]:
-                    print("Fault", ast_test_labels[i], metrics_test_labels[i], i)
-
-            ast_model.batch_size = len(ast_test_labels)
+            ast_model.batch_size = len(test_labels)
             ast_model.hidden = ast_model.init_hidden()
             ast_output = ast_model(ast_test1_inputs, ast_test2_inputs)
-            ast_loss = loss_function(ast_output, Variable(ast_test_labels))
+            ast_loss = loss_function(ast_output, Variable(test_labels))
 
-            metrics_model.batch_size = len(metrics_test_labels)
+            metrics_model.batch_size = len(test_labels)
             metrics_output = metrics_model(metrics_test1_inputs, metrics_test2_inputs)
-            metrics_loss = loss_function(metrics_output, Variable(metrics_test_labels))
+            metrics_loss = loss_function(metrics_output, Variable(test_labels))
             # print('i, metrics output', i, metrics_output)
             # print('i, metrics loss', i, metrics_loss)
 
             # calc testing acc
             ast_predicted = (ast_output.data > 0.5).cpu().numpy()
             ast_predicts.extend(ast_predicted)
-            trues.extend(ast_test_labels.cpu().numpy())
-            ast_total += len(ast_test_labels)
-            ast_total_loss += ast_loss.item() * len(ast_test_labels)
+            trues.extend(test_labels.cpu().numpy())
+            ast_total += len(test_labels)
+            ast_total_loss += ast_loss.item() * len(test_labels)
             # print('ast total', ast_total)
             # print('ast total_loss', ast_total_loss)
             metrics_predicted = (metrics_output.data > 0.5).cpu().numpy()
             metrics_predicts.extend(metrics_predicted)
-            # trues.extend(metrics_test_labels.cpu().numpy())
-            metrics_total += len(metrics_test_labels)
-            metrics_total_loss += metrics_loss.item() * len(metrics_test_labels)
+            metrics_total += len(test_labels)
+            metrics_total_loss += metrics_loss.item() * len(test_labels)
             # print('metrics total', metrics_total)
             # print('metrics total_loss', metrics_total_loss)
 
