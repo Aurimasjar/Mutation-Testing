@@ -49,7 +49,7 @@ if __name__ == '__main__':
     BATCH_SIZE = 32
     USE_GPU = False
     THRESHOLD = 0.5
-    model_filepath = 'outputtest/' + lang + '/metrics_model.pkl'
+    model_filepath = 'output/' + lang + '/metrics_model.pkl'
 
     print('Calculate means and stds...')
     metrics_data = []

@@ -5,9 +5,10 @@ import warnings
 from gensim.models.word2vec import Word2Vec
 from ast_model import BatchProgramCC
 from torch.autograd import Variable
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import precision_recall_fscore_support, confusion_matrix
 
 import plot
+import combined_model
 from metrics_model import MetricsModel
 
 warnings.filterwarnings('ignore')
@@ -83,7 +84,7 @@ if __name__ == '__main__':
     BATCH_SIZE = 32
     USE_GPU = False
     ast_model_filepath = 'output/' + lang + '/ast_model.pkl'
-    metrics_model_filepath = 'outputtest/' + lang + '/metrics_model.pkl'
+    metrics_model_filepath = 'output/' + lang + '/metrics_model.pkl'
     metadata = pd.read_pickle(root + lang + '/train' + '/metadata.pkl')
     means, stds = metadata['means'].tolist(), metadata['stds'].tolist()
 
@@ -118,9 +119,11 @@ if __name__ == '__main__':
         # testing procedure
         trues = []
         ast_predicts = []
+        ast_predicts_probability = []
         ast_total_loss = 0.0
         ast_total = 0.0
         metrics_predicts = []
+        metrics_predicts_probability = []
         metrics_total_loss = 0.0
         metrics_total = 0.0
         i = 0
@@ -146,6 +149,7 @@ if __name__ == '__main__':
             # calc testing acc
             ast_predicted = (ast_output.data > 0.5).cpu().numpy()
             ast_predicts.extend(ast_predicted)
+            ast_predicts_probability.extend(ast_output.data)
             trues.extend(test_labels.cpu().numpy())
             ast_total += len(test_labels)
             ast_total_loss += ast_loss.item() * len(test_labels)
@@ -153,6 +157,7 @@ if __name__ == '__main__':
             # print('ast total_loss', ast_total_loss)
             metrics_predicted = (metrics_output.data > 0.5).cpu().numpy()
             metrics_predicts.extend(metrics_predicted)
+            metrics_predicts_probability.extend(metrics_output.data)
             metrics_total += len(test_labels)
             metrics_total_loss += metrics_loss.item() * len(test_labels)
             # print('metrics total', metrics_total)
@@ -163,6 +168,30 @@ if __name__ == '__main__':
 
         plot.plot_confusion_matrix(ast_predicts, trues)
         plot.plot_confusion_matrix(metrics_predicts, trues)
+        predicts_and = combined_model.combine_and(ast_predicts, metrics_predicts)
+        predicts_or = combined_model.combine_or(ast_predicts, metrics_predicts)
+        plot.plot_confusion_matrix(predicts_and, trues)
+        plot.plot_confusion_matrix(predicts_or, trues)
+
+        ast_cm = confusion_matrix(np.array(ast_predicts), np.array(trues))
+        print('ast confusion matrix', ast_cm)
+        predicts_or_cms = []
+        true_positives = []
+        false_positives = []
+        false_negatives = []
+        thresholds = []
+        for thr in np.arange(0.05, 1, 0.05):
+            thresholds.append(thr)
+            predicts_or_item = combined_model.combine_or_prob(ast_predicts_probability, metrics_predicts_probability, 0.5, thr)
+            cm = confusion_matrix(np.array(predicts_or_item), np.array(trues))
+            true_positives.append(cm[1][1])
+            false_positives.append(cm[1][0])
+            false_negatives.append(cm[0][1])
+            predicts_or_cms.append(cm)
+        print('all confusiom matrices', predicts_or_cms)
+        plot.plot_unit_graph_2(thresholds, false_positives, false_negatives, 'Klaidinga tiesa', 'Nerasta tiesa', 'Riba', 'Vienetų kiekis', 'Vienetų skaičius keičiantis metrikų modelio ribai')
+        plot.plot_unit_graph_2(thresholds, [x/(ast_cm[1][0] + ast_cm[1][1]) for x in false_positives], [x/ast_cm[0][1] for x in false_negatives], 'Klaidinga tiesa', 'Nerasta tiesa', 'Riba', 'Vienetų dalis', 'Vienetų dalis keičiantis metrikų modelio ribai')
+
         if lang == 'java':
             weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]
 

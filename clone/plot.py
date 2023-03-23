@@ -36,6 +36,35 @@ def plot_training_acc_stats(vector):
     plt.show()
 
 
+def plot_acc_stats(vector, loc='images/acc_image.png'):
+    epochs = len(vector)
+    plt.plot(range(epochs), vector, label='Modelio mokymo tikslumo funkcija')
+    plt.xlabel('Epocha')
+    plt.ylabel('Tikslumas')
+    plt.title('Modelio mokymo tikslumas')
+    plt.legend()
+    plt.savefig(loc)
+    plt.show()
+
+def plot_unit_graph(xdata, vector, label, xlabel, ylabel, title):
+    plt.plot(xdata, vector, label=label)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.legend()
+    plt.show()
+
+
+def plot_unit_graph_2(xdata, vector1, vector2, label1, label2, xlabel, ylabel, title):
+    plt.plot(xdata, vector1, label=label1)
+    plt.plot(xdata, vector2, label=label2)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.legend()
+    plt.show()
+
+
 def plot_confusion_matrix(predicts, trues):
     cm = confusion_matrix(np.array(predicts), np.array(trues))
     plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
