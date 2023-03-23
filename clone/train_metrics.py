@@ -39,6 +39,7 @@ if __name__ == '__main__':
         categories = 5
     print("Train for ", str.upper(lang))
     train_data = pd.read_pickle(root + lang + '/train/metrics.pkl').sample(frac=1)
+    valid_data = pd.read_pickle(root + lang + '/dev/metrics.pkl').sample(frac=1)
     test_data = pd.read_pickle(root + lang + '/test/metrics.pkl').sample(frac=1)
     METRICS_DIM = 75
     for atd_i in range(0, len(test_data['metrics_x'])-1):
@@ -74,6 +75,7 @@ if __name__ == '__main__':
 
     print(train_data)
     train_loss_data, train_acc_data = [], []
+    valid_loss_data, valid_acc_data = [], []
     precision, recall, f1 = 0, 0, 0
     prf_list = []
     print("EPOCHS, BATCH SIZE, THRESHOLD", EPOCHS, BATCH_SIZE, THRESHOLD)
@@ -85,12 +87,15 @@ if __name__ == '__main__':
             train_data_t = train_data[train_data['label'].isin([t, 0])]
             train_data_t.loc[train_data_t['label'] > 0, 'label'] = 1
 
+            valid_data_t = valid_data[valid_data['label'].isin([t, 0])]
+            valid_data_t.loc[valid_data_t['label'] > 0, 'label'] = 1
+
             test_data_t = test_data[test_data['label'].isin([t, 0])]
             test_data_t.loc[test_data_t['label'] > 0, 'label'] = 1
             if t != 3:
                 continue
         else:
-            train_data_t, test_data_t = train_data, test_data
+            train_data_t, valid_data_t, test_data_t = train_data, valid_data, test_data
         # training procedure
         for epoch in range(EPOCHS):
             print('epoch', epoch)
@@ -98,12 +103,15 @@ if __name__ == '__main__':
             print('epoch and start time', epoch, epoch_time)
             # training epoch
             predicts, trues = [], []
+            valid_predicts, valid_trues = [], []
             total_loss = 0.0
             total = 0.0
+            valid_total_loss = 0.0
+            valid_total = 0.0
             i = 0
+            model.train()
             while i < len(train_data_t):
                 # print("train", i, " \ ", len(train_data_t))
-                # model.half() # ...
                 batch = get_batch(train_data_t, i, BATCH_SIZE)
                 i += BATCH_SIZE
                 train1_inputs, train2_inputs, train_labels = batch
@@ -113,10 +121,8 @@ if __name__ == '__main__':
                 model.zero_grad()
                 model.batch_size = len(train_labels)
                 output = model(train1_inputs, train2_inputs)
-                # output = torch.clamp(output, 1e-9, 1 - 1e-9)
                 loss = loss_function(output, Variable(train_labels))
                 loss.backward()
-                # model.float() # ...
                 optimizer.step()
 
                 predicts.extend((output.data > THRESHOLD).cpu().numpy())
@@ -129,15 +135,39 @@ if __name__ == '__main__':
             train_acc_data.append(train_acc)
             train_loss_data.append(total_loss / total)
 
+            i = 0
+            model.eval()  # Optional when not using Model Specific layer
+            while i < len(valid_data_t):
+                # print("validation", i, " \ ", len(valid_data_t))
+                batch = get_batch(valid_data_t, i, BATCH_SIZE)
+                i += BATCH_SIZE
+                valid1_inputs, valid2_inputs, valid_labels = batch
+                if USE_GPU:
+                    valid1_inputs, valid2_inputs, valid_labels = valid1_inputs, valid2_inputs, valid_labels.cuda()
+
+                output = model(valid1_inputs, valid2_inputs)
+                loss = loss_function(output, Variable(valid_labels))
+                valid_total_loss += loss.item() * len(valid_labels)
+                valid_predicts.extend((output.data > THRESHOLD).cpu().numpy())
+                valid_trues.extend(valid_labels.cpu().numpy())
+                valid_total += len(valid_labels)
+
+            valid_acc = model_training.count_accuracy(valid_trues, valid_predicts)
+
+            valid_acc_data.append(valid_acc)
+            valid_loss_data.append(valid_total_loss / valid_total)
+
         endd_time = time.time()
         print("Training finished time", endd_time)
         print("Saving model to ", model_filepath)
         torch.save(model.state_dict(), model_filepath)
         print('train_loss_data', train_loss_data)
         print('train_acc_data', train_acc_data)
+        print('valid_loss_data', valid_loss_data)
+        print('valid_acc_data', valid_acc_data)
         # plot.plot_training_stats(train_loss_data, train_acc_data)
-        plot.plot_training_loss_stats(train_loss_data)
-        plot.plot_training_acc_stats(train_acc_data)
+        plot.plot_training_loss_stats(train_loss_data, valid_loss_data)
+        plot.plot_training_acc_stats(train_acc_data, valid_acc_data)
 
         print("Testing-%d..." % t)
         # testing procedure
