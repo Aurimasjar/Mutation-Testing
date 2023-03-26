@@ -166,12 +166,12 @@ if __name__ == '__main__':
             # print('trueslab, astpred, metricspred', tuple(zip(ast_test_labels, ast_predicted, metrics_predicted)))
             # print('trues, astpr, metricspr', trues, ast_predicts, metrics_predicts)
 
-        plot.plot_confusion_matrix(ast_predicts, trues)
-        plot.plot_confusion_matrix(metrics_predicts, trues)
+        plot.plot_confusion_matrix(ast_predicts, trues, 'c_ast_confusion_matrix')
+        plot.plot_confusion_matrix(metrics_predicts, trues, 'c_metrics_confusion_matrix')
         predicts_and = combined_model.combine_and(ast_predicts, metrics_predicts)
         predicts_or = combined_model.combine_or(ast_predicts, metrics_predicts)
-        plot.plot_confusion_matrix(predicts_and, trues)
-        plot.plot_confusion_matrix(predicts_or, trues)
+        plot.plot_confusion_matrix(predicts_and, trues, 'c_combined_and_confusion_matrix')
+        plot.plot_confusion_matrix(predicts_or, trues, 'c_combined_or_confusion_matrix')
 
         ast_cm = confusion_matrix(np.array(ast_predicts), np.array(trues))
         print('ast confusion matrix', ast_cm)
@@ -189,8 +189,8 @@ if __name__ == '__main__':
             false_negatives.append(cm[0][1])
             predicts_or_cms.append(cm)
         print('all confusiom matrices', predicts_or_cms)
-        plot.plot_unit_graph_2(thresholds, false_positives, false_negatives, 'Klaidinga tiesa', 'Nerasta tiesa', 'Riba', 'Vienetų kiekis', 'Vienetų skaičius keičiantis metrikų modelio ribai')
-        plot.plot_unit_graph_2(thresholds, [x/(ast_cm[1][0] + ast_cm[1][1]) for x in false_positives], [x/ast_cm[0][1] for x in false_negatives], 'Klaidinga tiesa', 'Nerasta tiesa', 'Riba', 'Vienetų dalis', 'Vienetų dalis keičiantis metrikų modelio ribai')
+        plot.plot_unit_graph_2(thresholds, false_positives, false_negatives, 'Klaidinga tiesa', 'Nerasta tiesa', 'Riba', 'Vienetų kiekis', 'Vienetų skaičius keičiantis metrikų modelio ribai', 'c_absolute_unit_graph')
+        plot.plot_unit_graph_2(thresholds, [x/(ast_cm[1][0] + ast_cm[1][1]) for x in false_positives], [x/ast_cm[0][1] for x in false_negatives], 'Klaidinga tiesa', 'Nerasta tiesa', 'Riba', 'Vienetų dalis', 'Vienetų dalis keičiantis metrikų modelio ribai', 'c_relative_unit_graph')
 
         if lang == 'java':
             weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]

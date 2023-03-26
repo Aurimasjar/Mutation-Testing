@@ -9,4 +9,6 @@ import plot
 # plt.imshow(img)
 # plt.show()
 
-plot.plot_read_stats()
+# plot.plot_read_stats()
+
+plot.plot_read_confusion_matrix('c_metrics_tv_overfitted_confusion_matrix')

@@ -175,7 +175,7 @@ if __name__ == '__main__':
             prf_list.append([precision, recall, f1])
 
     print("prf list", prf_list)
-    print("Total testing results(P,R,F1):%.3f, %.3f, %.3f" % (precision, recall, f1))
+    print("Total testing results(P,R,F1):%.3f & %.3f & %.3f" % (precision, recall, f1))
     end_time = time.time()
     print("End time", end_time)
     diff = endd_time - start_time
