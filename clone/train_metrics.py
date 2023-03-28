@@ -41,7 +41,7 @@ if __name__ == '__main__':
     train_data = pd.read_pickle(root + lang + '/train/metrics.pkl').sample(frac=1)
     valid_data = pd.read_pickle(root + lang + '/dev/metrics.pkl').sample(frac=1)
     test_data = pd.read_pickle(root + lang + '/test/metrics.pkl').sample(frac=1)
-    METRICS_DIM = 75
+    METRICS_DIM = 44
     for atd_i in range(0, len(test_data['metrics_x'])-1):
         if isinstance(test_data['metrics_x'][atd_i], float):
             test_data['metrics_x'][atd_i] = [0] * METRICS_DIM
@@ -166,8 +166,8 @@ if __name__ == '__main__':
         print('valid_loss_data', valid_loss_data)
         print('valid_acc_data', valid_acc_data)
         # plot.plot_training_stats(train_loss_data, train_acc_data)
-        plot.plot_training_loss_stats(train_loss_data, valid_loss_data)
-        plot.plot_training_acc_stats(train_acc_data, valid_acc_data)
+        plot.plot_training_loss_stats(train_loss_data, valid_loss_data, 'c_metrics_tvlm_80_loss_function')
+        plot.plot_training_acc_stats(train_acc_data, valid_acc_data, 'c_metrics_tvlm_80_acc_function')
 
         print("Testing-%d..." % t)
         # testing procedure
@@ -201,7 +201,7 @@ if __name__ == '__main__':
             # print('metrics total', total)
             # print('metrics total_loss', total_loss)
 
-        plot.plot_confusion_matrix(predicts, trues)
+        plot.plot_confusion_matrix(predicts, trues, 'c_metrics_tvlm_80_confusion_matrix')
         if lang == 'java':
             weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]
             p, r, f, _ = precision_recall_fscore_support(trues, predicts, average='binary')

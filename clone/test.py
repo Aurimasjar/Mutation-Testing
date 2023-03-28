@@ -80,7 +80,7 @@ if __name__ == '__main__':
     embeddings[:word2vec.vectors.shape[0]] = word2vec.vectors
 
 
-    METRICS_DIM = 75
+    METRICS_DIM = 44
     BATCH_SIZE = 32
     USE_GPU = False
     ast_model_filepath = 'output/' + lang + '/ast_model.pkl'
@@ -179,18 +179,20 @@ if __name__ == '__main__':
         true_positives = []
         false_positives = []
         false_negatives = []
+        true_negatives = []
         thresholds = []
-        for thr in np.arange(0.05, 1, 0.05):
+        for thr in np.arange(0, 1, 0.05):
             thresholds.append(thr)
             predicts_or_item = combined_model.combine_or_prob(ast_predicts_probability, metrics_predicts_probability, 0.5, thr)
             cm = confusion_matrix(np.array(predicts_or_item), np.array(trues))
             true_positives.append(cm[1][1])
             false_positives.append(cm[1][0])
             false_negatives.append(cm[0][1])
+            true_negatives.append(cm[0][0])
             predicts_or_cms.append(cm)
         print('all confusiom matrices', predicts_or_cms)
         plot.plot_unit_graph_2(thresholds, false_positives, false_negatives, 'Klaidinga tiesa', 'Nerasta tiesa', 'Riba', 'Vienetų kiekis', 'Vienetų skaičius keičiantis metrikų modelio ribai', 'c_absolute_unit_graph')
-        plot.plot_unit_graph_2(thresholds, [x/(ast_cm[1][0] + ast_cm[1][1]) for x in false_positives], [x/ast_cm[0][1] for x in false_negatives], 'Klaidinga tiesa', 'Nerasta tiesa', 'Riba', 'Vienetų dalis', 'Vienetų dalis keičiantis metrikų modelio ribai', 'c_relative_unit_graph')
+        plot.plot_unit_graph_2(thresholds, [x/ast_cm[0][0] for x in false_positives], [x/ast_cm[0][1] for x in false_negatives], 'Klaidinga tiesa', 'Nerasta tiesa', 'Riba', 'Vienetų dalis', 'Vienetų dalis keičiantis metrikų modelio ribai', 'c_relative_unit_graph')
 
         if lang == 'java':
             weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]
