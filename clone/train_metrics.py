@@ -46,7 +46,7 @@ if __name__ == '__main__':
         if isinstance(test_data['metrics_x'][atd_i], float):
             test_data['metrics_x'][atd_i] = [0] * METRICS_DIM
 
-    EPOCHS = 10
+    EPOCHS = 80
     BATCH_SIZE = 32
     USE_GPU = False
     THRESHOLD = 0.5
@@ -166,8 +166,8 @@ if __name__ == '__main__':
         print('valid_loss_data', valid_loss_data)
         print('valid_acc_data', valid_acc_data)
         # plot.plot_training_stats(train_loss_data, train_acc_data)
-        plot.plot_training_loss_stats(train_loss_data, valid_loss_data, 'c_metrics_tvlm_80_loss_function')
-        plot.plot_training_acc_stats(train_acc_data, valid_acc_data, 'c_metrics_tvlm_80_acc_function')
+        plot.plot_training_loss_stats(train_loss_data, valid_loss_data, 'java_metrics_tv_80_loss_function')
+        plot.plot_training_acc_stats(train_acc_data, valid_acc_data, 'java_metrics_tv_80_acc_function')
 
         print("Testing-%d..." % t)
         # testing procedure
@@ -201,7 +201,7 @@ if __name__ == '__main__':
             # print('metrics total', total)
             # print('metrics total_loss', total_loss)
 
-        plot.plot_confusion_matrix(predicts, trues, 'c_metrics_tvlm_80_confusion_matrix')
+        plot.plot_confusion_matrix(predicts, trues, 'java_metrics_tv_80_confusion_matrix')
         if lang == 'java':
             weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]
             p, r, f, _ = precision_recall_fscore_support(trues, predicts, average='binary')

@@ -33,7 +33,19 @@ def plot_training_loss_stats(train_vector, valid_vector, filename='plot_training
     save_to_csv({'v1': train_vector, 'v2': valid_vector}, filename)
     epochs = len(train_vector)
     plt.plot(range(epochs), train_vector, label='Modelio mokymo praradimo funkcija')
-    plt.plot(range(epochs), valid_vector, label='Modelio validavimo praradimo funkcija')
+    if valid_vector is not None:
+        plt.plot(range(epochs), valid_vector, label='Modelio validavimo praradimo funkcija')
+    plt.xlabel('Epocha')
+    plt.ylabel('Praradimo funkcija')
+    plt.title('Modelio mokymo praradimo funkcijos raida')
+    plt.legend()
+    plt.savefig('images/' + filename + '.png')
+    plt.show()
+
+def plot_training_loss_wv_stats(train_vector, filename='plot_training_loss_stats'):
+    save_to_csv({'v1': train_vector}, filename)
+    epochs = len(train_vector)
+    plt.plot(range(epochs), train_vector, label='Modelio mokymo praradimo funkcija')
     plt.xlabel('Epocha')
     plt.ylabel('Praradimo funkcija')
     plt.title('Modelio mokymo praradimo funkcijos raida')
@@ -46,7 +58,19 @@ def plot_training_acc_stats(train_vector, valid_vector, filename='plot_training_
     save_to_csv({'v1': train_vector, 'v2': valid_vector}, filename)
     epochs = len(train_vector)
     plt.plot(range(epochs), train_vector, label='Modelio mokymo tikslumo funkcija')
-    plt.plot(range(epochs), valid_vector, label='Modelio validavimo tikslumo funkcija')
+    if valid_vector is not None:
+        plt.plot(range(epochs), valid_vector, label='Modelio validavimo tikslumo funkcija')
+    plt.xlabel('Epocha')
+    plt.ylabel('Tikslumas')
+    plt.title('Modelio mokymo tikslumas')
+    plt.legend()
+    plt.savefig('images/' + filename + '.png')
+    plt.show()
+
+def plot_training_acc_wv_stats(train_vector, filename='plot_training_acc_stats'):
+    save_to_csv({'v1': train_vector}, filename)
+    epochs = len(train_vector)
+    plt.plot(range(epochs), train_vector, label='Modelio mokymo tikslumo funkcija')
     plt.xlabel('Epocha')
     plt.ylabel('Tikslumas')
     plt.title('Modelio mokymo tikslumas')

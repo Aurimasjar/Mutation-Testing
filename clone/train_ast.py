@@ -128,8 +128,8 @@ if __name__ == '__main__':
         print('train_loss_data', train_loss_data)
         print('train_acc_data', train_acc_data)
         # plot.plot_training_stats(train_loss_data, train_acc_data)
-        plot.plot_training_loss_stats(train_loss_data)
-        plot.plot_training_acc_stats(train_acc_data)
+        plot.plot_training_loss_wv_stats(train_loss_data, 'java_ast_loss_function')
+        plot.plot_training_acc_wv_stats(train_acc_data, 'java_ast_acc_function')
 
         print("Testing-%d..."%t)
         # testing procedure
@@ -161,7 +161,7 @@ if __name__ == '__main__':
             # print('ast total', total)
             # print('ast total_loss', total_loss)
 
-        plot.plot_confusion_matrix(predicts, trues)
+        plot.plot_confusion_matrix(predicts, trues, 'java_ast_confusion_matrix')
         if lang == 'java':
             weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]
             p, r, f, _ = precision_recall_fscore_support(trues, predicts, average='binary')

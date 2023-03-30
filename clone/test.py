@@ -68,10 +68,14 @@ if __name__ == '__main__':
         categories = 5
     print("Test for ", str.upper(lang))
     test_data = pd.read_pickle(root + lang + '/test/metrics.pkl').sample(frac=1)
+    METRICS_DIM = 44
     if lang == 'java':
         for atd_i in range(0, len(test_data['code_x'])-1):
             if isinstance(test_data['code_x'][atd_i], float):
                 test_data['code_x'][atd_i] = [[1]]
+        for atd_i in range(0, len(test_data['metrics_x']) - 1):
+            if isinstance(test_data['metrics_x'][atd_i], float):
+                test_data['metrics_x'][atd_i] = [0] * METRICS_DIM
 
     word2vec = Word2Vec.load(root + lang + "/train/embedding/node_w2v_128").wv
     MAX_TOKENS = word2vec.vectors.shape[0]
@@ -80,7 +84,6 @@ if __name__ == '__main__':
     embeddings[:word2vec.vectors.shape[0]] = word2vec.vectors
 
 
-    METRICS_DIM = 44
     BATCH_SIZE = 32
     USE_GPU = False
     ast_model_filepath = 'output/' + lang + '/ast_model.pkl'
