@@ -24,7 +24,6 @@ def get_count(sequence, searched_item):
 
 # calculate 75 metrics for c code
 def calculate_old_c_metrics(ast):
-    # print('calculate_c_metrics', ast)
     sequence = []
     get_sequences(ast, sequence)
     if_count = get_count(sequence, ['If'])
@@ -129,7 +128,6 @@ def calculate_old_c_metrics(ast):
 
 # calculate 44 metrics for c code
 def calculate_c_metrics(ast):
-    # print('calculate_c_metrics', ast)
     sequence = []
     get_sequences(ast, sequence)
     if_count = get_count(sequence, ['If'])
@@ -194,7 +192,6 @@ def calculate_c_metrics(ast):
 
 # calculate 21 metrics for c code
 def calculate_c_metrics_2(ast):
-    # print('calculate_c_metrics', ast)
     sequence = []
     get_sequences(ast, sequence)
     if_count = get_count(sequence, ['If'])
@@ -261,10 +258,8 @@ def get_max_depth_c(node):
 
 # calculate 44 metrics for java code
 def calculate_java_metrics(ast):
-    # print('calculate_java_metrics', ast)
     sequence = []
     get_sequence(ast, sequence)
-    # print('calculate_java_metrics seq', sequence)
     if_count = get_count(sequence, ['IfStatement'])
     loop_count = get_count(sequence, ['ForStatement', 'WhileStatement', 'DoWhileStatement'])
     break_continue_count = get_count(sequence, ['BreakStatement', 'ContinueStatement'])

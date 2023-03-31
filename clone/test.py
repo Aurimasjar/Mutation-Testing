@@ -146,8 +146,6 @@ if __name__ == '__main__':
             metrics_model.batch_size = len(test_labels)
             metrics_output = metrics_model(metrics_test1_inputs, metrics_test2_inputs)
             metrics_loss = loss_function(metrics_output, Variable(test_labels))
-            # print('i, metrics output', i, metrics_output)
-            # print('i, metrics loss', i, metrics_loss)
 
             # calc testing acc
             ast_predicted = (ast_output.data > 0.5).cpu().numpy()
@@ -156,18 +154,12 @@ if __name__ == '__main__':
             trues.extend(test_labels.cpu().numpy())
             ast_total += len(test_labels)
             ast_total_loss += ast_loss.item() * len(test_labels)
-            # print('ast total', ast_total)
-            # print('ast total_loss', ast_total_loss)
             metrics_predicted = (metrics_output.data > 0.5).cpu().numpy()
             metrics_predicts.extend(metrics_predicted)
             metrics_predicts_probability.extend(metrics_output.data)
             metrics_total += len(test_labels)
             metrics_total_loss += metrics_loss.item() * len(test_labels)
-            # print('metrics total', metrics_total)
-            # print('metrics total_loss', metrics_total_loss)
 
-            # print('trueslab, astpred, metricspred', tuple(zip(ast_test_labels, ast_predicted, metrics_predicted)))
-            # print('trues, astpr, metricspr', trues, ast_predicts, metrics_predicts)
 
         plot.plot_confusion_matrix(ast_predicts, trues, 'c_ast_confusion_matrix')
         plot.plot_confusion_matrix(metrics_predicts, trues, 'c_metrics_confusion_matrix')
@@ -216,8 +208,6 @@ if __name__ == '__main__':
         else:
             ast_precision, ast_recall, ast_f1, _ = precision_recall_fscore_support(trues, ast_predicts, average='binary')
             metrics_precision, metrics_recall, metrics_f1, _ = precision_recall_fscore_support(trues, metrics_predicts, average='binary')
-            # ast_precision, ast_recall, ast_f1, _ = precision_recall_fscore_support(trues, ast_predicts, average='weighted')
-            # metrics_precision, metrics_recall, metrics_f1, _ = precision_recall_fscore_support(trues, metrics_predicts, average='weighted')
             print('lens of trues, astpr, metricspr', len(trues), len(ast_predicts), len(metrics_predicts))
             print('trues of trues, astpr, metricspr', get_trues_count(trues), get_trues_count(ast_predicts), get_trues_count(metrics_predicts))
             # print('trues, astpr, metricspr', trues, ast_predicts, metrics_predicts)

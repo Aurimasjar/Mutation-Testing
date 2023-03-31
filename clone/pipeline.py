@@ -96,11 +96,7 @@ class Pipeline:
 
     # calculate metrics for each ast
     def calculate_metrics(self, output_file):
-        # trees = pd.DataFrame(self.sources, copy=True)
-        # self.sources['metrics']
-        # self.metrics = metrics.calculate_metrics(self.sources['code'])
         if self.language == 'c':
-            # self.metrics = pd.DataFrame(metrics.calculate_c_metrics(self.sources['code'].iloc[0]))
             self.metrics = pd.DataFrame(self.sources['code'].progress_apply(metrics.calculate_c_metrics))
         else:
             self.metrics = pd.DataFrame(self.sources['code'].progress_apply(metrics.calculate_java_metrics))
@@ -225,8 +221,7 @@ class Pipeline:
         df = pd.merge(df, self.blocks, how='left',
                       left_on='id2', right_on='id')
         df.drop(['id_x', 'id_y'], axis=1, inplace=True)
-        # df.dropna(inplace=True) # todo uncomment when metrics for java code are calculated
-        print('merge df', df)
+        df.dropna(inplace=True)
 
         df.to_pickle(self.root + self.language + '/' + part + '/blocks.pkl')
         df.to_pickle(self.root + self.language + '/' + part + '/metrics.pkl')
@@ -276,11 +271,6 @@ class Pipeline:
         self.merge(self.train_file_path, 'train')
         self.merge(self.dev_file_path, 'dev')
         self.merge(self.test_file_path, 'test')
-
-        # print('merge pairs and blocks for metrics model...')
-        # self.merge_metrics(self.train_file_path, 'train')
-        # self.merge_metrics(self.dev_file_path, 'dev')
-        # self.merge_metrics(self.test_file_path, 'test')
 
 
 @click.command()

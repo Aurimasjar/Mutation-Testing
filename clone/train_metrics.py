@@ -71,7 +71,6 @@ if __name__ == '__main__':
     parameters = model.parameters()
     optimizer = torch.optim.Adamax(parameters)
     loss_function = torch.nn.BCELoss()
-    # loss_function = torch.nn.BCEWithLogitsLoss()
 
     print(train_data)
     train_loss_data, train_acc_data = [], []
@@ -136,7 +135,7 @@ if __name__ == '__main__':
             train_loss_data.append(total_loss / total)
 
             i = 0
-            model.eval()  # Optional when not using Model Specific layer
+            model.eval()
             while i < len(valid_data_t):
                 # print("validation", i, " \ ", len(valid_data_t))
                 batch = get_batch(valid_data_t, i, BATCH_SIZE)
@@ -165,7 +164,6 @@ if __name__ == '__main__':
         print('train_acc_data', train_acc_data)
         print('valid_loss_data', valid_loss_data)
         print('valid_acc_data', valid_acc_data)
-        # plot.plot_training_stats(train_loss_data, train_acc_data)
         plot.plot_training_loss_stats(train_loss_data, valid_loss_data, 'java_metrics_tv_80_loss_function')
         plot.plot_training_acc_stats(train_acc_data, valid_acc_data, 'java_metrics_tv_80_acc_function')
 
@@ -186,20 +184,14 @@ if __name__ == '__main__':
 
             model.batch_size = len(test_labels)
             output = model(test1_inputs, test2_inputs)
-            # print('output i', i, output)
-
             loss = loss_function(output, Variable(test_labels))
-            # print('loss i', i, loss)
 
             # calc testing acc
             predicted = (output.data > THRESHOLD).cpu().numpy()
-            # print("predicted", output.data, predicted)
             predicts.extend(predicted)
             trues.extend(test_labels.cpu().numpy())
             total += len(test_labels)
             total_loss += loss.item() * len(test_labels)
-            # print('metrics total', total)
-            # print('metrics total_loss', total_loss)
 
         plot.plot_confusion_matrix(predicts, trues, 'java_metrics_tv_80_confusion_matrix')
         if lang == 'java':

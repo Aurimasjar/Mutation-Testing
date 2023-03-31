@@ -127,7 +127,6 @@ if __name__ == '__main__':
         torch.save(model.state_dict(), model_filepath)
         print('train_loss_data', train_loss_data)
         print('train_acc_data', train_acc_data)
-        # plot.plot_training_stats(train_loss_data, train_acc_data)
         plot.plot_training_loss_wv_stats(train_loss_data, 'java_ast_loss_function')
         plot.plot_training_acc_wv_stats(train_acc_data, 'java_ast_acc_function')
 
@@ -158,8 +157,6 @@ if __name__ == '__main__':
             trues.extend(test_labels.cpu().numpy())
             total += len(test_labels)
             total_loss += loss.item() * len(test_labels)
-            # print('ast total', total)
-            # print('ast total_loss', total_loss)
 
         plot.plot_confusion_matrix(predicts, trues, 'java_ast_confusion_matrix')
         if lang == 'java':
