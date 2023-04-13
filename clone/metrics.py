@@ -1,11 +1,12 @@
 import pandas as pd
 from torch import tensor
 
-from prepare_data_c import get_sequences
-from prepare_data_java import get_sequence
-import prepare_data_c
-import prepare_data_java
-
+# import prepare_data_java
+# from prepare_data_c import get_sequences
+# from prepare_data_java import get_sequence
+from . import prepare_data_java
+from .prepare_data_c import get_sequences
+from .prepare_data_java import get_sequence
 
 class Metrics:
     def __init__(self, *params):

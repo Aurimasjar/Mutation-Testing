@@ -1,0 +1,4 @@
+# these files are too large to push to git and should be built from pipeline.py module
+*.pkl
+*.tsv
+node_w2v_128

@@ -74,6 +74,7 @@ class Pipeline:
 
                 source = pd.read_csv(input_path, delimiter='\t')
                 source.columns = ['id', 'code']
+                source['source_code'] = source['code']
                 source['code'] = source['code'].progress_apply(parse_program)
                 source.to_pickle(output_path)
         self.sources = source
@@ -225,6 +226,7 @@ class Pipeline:
 
         df.to_pickle(self.root + self.language + '/' + part + '/blocks.pkl')
         df.to_pickle(self.root + self.language + '/' + part + '/metrics.pkl')
+        df.to_pickle(self.root + self.language + '/' + part + '/source_code.pkl')
 
     # merge pairs for metrics model
     def merge_metrics(self, data_path, part):
@@ -268,8 +270,8 @@ class Pipeline:
         print('generate block sequences...')
         self.generate_block_seqs()
         print('merge pairs and blocks...')
-        self.merge(self.train_file_path, 'train')
-        self.merge(self.dev_file_path, 'dev')
+        # self.merge(self.train_file_path, 'train')
+        # self.merge(self.dev_file_path, 'dev')
         self.merge(self.test_file_path, 'test')
 
 

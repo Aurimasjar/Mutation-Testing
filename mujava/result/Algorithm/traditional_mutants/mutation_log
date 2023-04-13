@@ -1,0 +1,188 @@
+AORB_1:21:int_power(int,int):P * x => P / x
+AORB_2:21:int_power(int,int):P * x => P % x
+AORB_3:21:int_power(int,int):P * x => P + x
+AORB_4:21:int_power(int,int):P * x => P - x
+AORB_5:33:boolean_prime(int):n % i => n * i
+AORB_6:33:boolean_prime(int):n % i => n / i
+AORB_7:33:boolean_prime(int):n % i => n + i
+AORB_8:33:boolean_prime(int):n % i => n - i
+AORS_1:22:int_power(int,int):i++ => i--
+AORS_2:32:boolean_prime(int):i++ => i--
+AODS_1:22:int_power(int,int):i++ => i
+AOIU_1:12:int_power(int,int):x => -x
+AOIU_2:15:int_power(int,int):y => -y
+AOIU_3:16:int_power(int,int):x => -x
+AOIU_4:20:int_power(int,int):i => -i
+AOIU_5:20:int_power(int,int):y => -y
+AOIU_6:21:int_power(int,int):P => -P
+AOIU_7:24:int_power(int,int):P => -P
+AOIU_8:29:boolean_prime(int):n => -n
+AOIU_9:32:boolean_prime(int):i => -i
+AOIU_10:32:boolean_prime(int):n => -n
+AOIU_11:33:boolean_prime(int):n => -n
+AOIS_1:12:int_power(int,int):x => ++x
+AOIS_2:12:int_power(int,int):x => --x
+AOIS_3:12:int_power(int,int):x => x++
+AOIS_4:12:int_power(int,int):x => x--
+AOIS_5:15:int_power(int,int):y => ++y
+AOIS_6:15:int_power(int,int):y => --y
+AOIS_7:15:int_power(int,int):y => y++
+AOIS_8:15:int_power(int,int):y => y--
+AOIS_9:16:int_power(int,int):x => x++
+AOIS_10:16:int_power(int,int):x => x--
+AOIS_11:20:int_power(int,int):i => ++i
+AOIS_12:20:int_power(int,int):i => --i
+AOIS_13:20:int_power(int,int):i => i++
+AOIS_14:20:int_power(int,int):i => i--
+AOIS_15:20:int_power(int,int):y => ++y
+AOIS_16:20:int_power(int,int):y => --y
+AOIS_17:20:int_power(int,int):y => y++
+AOIS_18:20:int_power(int,int):y => y--
+AOIS_19:21:int_power(int,int):P => ++P
+AOIS_20:21:int_power(int,int):P => --P
+AOIS_21:21:int_power(int,int):P => P++
+AOIS_22:21:int_power(int,int):P => P--
+AOIS_23:21:int_power(int,int):x => ++x
+AOIS_24:21:int_power(int,int):x => --x
+AOIS_25:21:int_power(int,int):x => x++
+AOIS_26:21:int_power(int,int):x => x--
+AOIS_27:24:int_power(int,int):P => P++
+AOIS_28:24:int_power(int,int):P => P--
+AOIS_29:29:boolean_prime(int):n => ++n
+AOIS_30:29:boolean_prime(int):n => --n
+AOIS_31:29:boolean_prime(int):n => n++
+AOIS_32:29:boolean_prime(int):n => n--
+AOIS_33:32:boolean_prime(int):i => ++i
+AOIS_34:32:boolean_prime(int):i => --i
+AOIS_35:32:boolean_prime(int):i => i++
+AOIS_36:32:boolean_prime(int):i => i--
+AOIS_37:32:boolean_prime(int):n => ++n
+AOIS_38:32:boolean_prime(int):n => --n
+AOIS_39:32:boolean_prime(int):n => n++
+AOIS_40:32:boolean_prime(int):n => n--
+AOIS_41:33:boolean_prime(int):n => ++n
+AOIS_42:33:boolean_prime(int):n => --n
+AOIS_43:33:boolean_prime(int):n => n++
+AOIS_44:33:boolean_prime(int):n => n--
+AOIS_45:33:boolean_prime(int):i => ++i
+AOIS_46:33:boolean_prime(int):i => --i
+AOIS_47:33:boolean_prime(int):i => i++
+AOIS_48:33:boolean_prime(int):i => i--
+ROR_1:12:int_power(int,int): x == 1  =>   x > 1
+ROR_2:12:int_power(int,int): x == 1  =>   x >= 1
+ROR_3:12:int_power(int,int): x == 1  =>   x < 1
+ROR_4:12:int_power(int,int): x == 1  =>   x <= 1
+ROR_5:12:int_power(int,int): x == 1  =>   x != 1
+ROR_6:12:int_power(int,int): x == 1  =>   true
+ROR_7:12:int_power(int,int): x == 1  =>   false
+ROR_8:15:int_power(int,int): y == 1  =>   y > 1
+ROR_9:15:int_power(int,int): y == 1  =>   y >= 1
+ROR_10:15:int_power(int,int): y == 1  =>   y < 1
+ROR_11:15:int_power(int,int): y == 1  =>   y <= 1
+ROR_12:15:int_power(int,int): y == 1  =>   y != 1
+ROR_13:15:int_power(int,int): y == 1  =>   true
+ROR_14:15:int_power(int,int): y == 1  =>   false
+ROR_15:20:int_power(int,int): i <= y  =>   i > y
+ROR_16:20:int_power(int,int): i <= y  =>   i >= y
+ROR_17:20:int_power(int,int): i <= y  =>   i < y
+ROR_18:20:int_power(int,int): i <= y  =>   i == y
+ROR_19:20:int_power(int,int): i <= y  =>   i != y
+ROR_20:20:int_power(int,int): i <= y  =>   true
+ROR_21:20:int_power(int,int): i <= y  =>   false
+ROR_22:29:boolean_prime(int): n < 2  =>   n > 2
+ROR_23:29:boolean_prime(int): n < 2  =>   n >= 2
+ROR_24:29:boolean_prime(int): n < 2  =>   n <= 2
+ROR_25:29:boolean_prime(int): n < 2  =>   n == 2
+ROR_26:29:boolean_prime(int): n < 2  =>   n != 2
+ROR_27:29:boolean_prime(int): n < 2  =>   true
+ROR_28:29:boolean_prime(int): n < 2  =>   false
+ROR_29:32:boolean_prime(int): i <= Math.sqrt( n )  =>   i > Math.sqrt( n )
+ROR_30:32:boolean_prime(int): i <= Math.sqrt( n )  =>   i >= Math.sqrt( n )
+ROR_31:32:boolean_prime(int): i <= Math.sqrt( n )  =>   i < Math.sqrt( n )
+ROR_32:32:boolean_prime(int): i <= Math.sqrt( n )  =>   i == Math.sqrt( n )
+ROR_33:32:boolean_prime(int): i <= Math.sqrt( n )  =>   i != Math.sqrt( n )
+ROR_34:32:boolean_prime(int): i <= Math.sqrt( n )  =>   true
+ROR_35:32:boolean_prime(int): i <= Math.sqrt( n )  =>   false
+ROR_36:33:boolean_prime(int): n % i == 0  =>   n % i > 0
+ROR_37:33:boolean_prime(int): n % i == 0  =>   n % i >= 0
+ROR_38:33:boolean_prime(int): n % i == 0  =>   n % i < 0
+ROR_39:33:boolean_prime(int): n % i == 0  =>   n % i <= 0
+ROR_40:33:boolean_prime(int): n % i == 0  =>   n % i != 0
+ROR_41:33:boolean_prime(int): n % i == 0  =>   true
+ROR_42:33:boolean_prime(int): n % i == 0  =>   false
+COI_1:12:int_power(int,int): x == 1  =>  !(x == 1)
+COI_2:15:int_power(int,int): y == 1  =>  !(y == 1)
+COI_3:20:int_power(int,int): i <= y  =>  !(i <= y)
+COI_4:29:boolean_prime(int): n < 2  =>  !(n < 2)
+COI_5:32:boolean_prime(int): i <= Math.sqrt( n )  =>  !(i <= Math.sqrt( n ))
+COI_6:33:boolean_prime(int): n % i == 0  =>  !(n % i == 0)
+LOI_1:12:int_power(int,int):x => ~x
+LOI_2:15:int_power(int,int):y => ~y
+LOI_3:16:int_power(int,int):x => ~x
+LOI_4:20:int_power(int,int):i => ~i
+LOI_5:20:int_power(int,int):y => ~y
+LOI_6:21:int_power(int,int):P => ~P
+LOI_7:21:int_power(int,int):x => ~x
+LOI_8:22:int_power(int,int):i => ~i
+LOI_9:24:int_power(int,int):P => ~P
+LOI_10:29:boolean_prime(int):n => ~n
+LOI_11:32:boolean_prime(int):i => ~i
+LOI_12:32:boolean_prime(int):n => ~n
+LOI_13:32:boolean_prime(int):i => ~i
+LOI_14:33:boolean_prime(int):n => ~n
+LOI_15:33:boolean_prime(int):i => ~i
+SDL_1:22:int_power(int,int): if (x == 1) {     return 1; } if (y == 1) {     return x; } int P = 1; int i = 1; while (i <= y) {     P = P * x;     i++; } return P;  =>   if (y == 1) {     return x; } int P = 1; int i = 1; while (i <= y) {     P = P * x;     i++; } return P;
+SDL_2:22:int_power(int,int): if (x == 1) {     return 1; } if (y == 1) {     return x; } int P = 1; int i = 1; while (i <= y) {     P = P * x;     i++; } return P;  =>   if (x == 1) {     return 1; } int P = 1; int i = 1; while (i <= y) {     P = P * x;     i++; } return P;
+SDL_3:21:int_power(int,int): if (x == 1) {     return 1; } if (y == 1) {     return x; } int P = 1; int i = 1; while (i <= y) {     P = P * x;     i++; } return P;  =>   if (x == 1) {     return 1; } if (y == 1) {     return x; } int P = 1; int i = 1; return P;
+SDL_4:15:int_power(int,int): if (x == 1) {     return 1; }  =>   if (true) {     return 1; }
+SDL_5:14:int_power(int,int): return 1;  =>   return 0;
+SDL_6:18:int_power(int,int): if (y == 1) {     return x; }  =>   if (true) {     return x; }
+SDL_7:17:int_power(int,int): return x;  =>   return 0;
+SDL_8:22:int_power(int,int): P = P * x; i++;  =>   i++;
+SDL_9:22:int_power(int,int): P = P * x; i++;  =>   P = P * x;
+SDL_10:24:int_power(int,int): while (i <= y) {     P = P * x;     i++; }  =>   while (true) {     P = P * x;     i++; }
+SDL_11:25:int_power(int,int): return P;  =>   return 0;
+SDL_12:35:boolean_prime(int): if (n < 2) {     return false; } for (int i = 2; i <= Math.sqrt( n ); i++) {     if (n % i == 0) {         return false;     } } return true;  =>   for (int i = 2; i <= Math.sqrt( n ); i++) {     if (n % i == 0) {         return false;     } } return true;
+SDL_13:33:boolean_prime(int): if (n < 2) {     return false; } for (int i = 2; i <= Math.sqrt( n ); i++) {     if (n % i == 0) {         return false;     } } return true;  =>   if (n < 2) {     return false; } return true;
+SDL_14:32:boolean_prime(int): if (n < 2) {     return false; }  =>   if (true) {     return false; }
+SDL_15:31:boolean_prime(int): return false;  =>   return true;
+SDL_16:33:boolean_prime(int): if (n % i == 0) {     return false; }  =>  
+SDL_17:37:boolean_prime(int): for (int i = 2; i <= Math.sqrt( n ); i++) {     if (n % i == 0) {         return false;     } }  =>   for (int i = 2;; i++) {     if (n % i == 0) {         return false;     } }
+SDL_18:37:boolean_prime(int): for (int i = 2; i <= Math.sqrt( n ); i++) {     if (n % i == 0) {         return false;     } }  =>   for (int i = 2; i <= Math.sqrt( n );) {     if (n % i == 0) {         return false;     } }
+SDL_19:36:boolean_prime(int): if (n % i == 0) {     return false; }  =>   if (true) {     return false; }
+SDL_20:35:boolean_prime(int): return false;  =>   return true;
+SDL_21:38:boolean_prime(int): return true;  =>   return false;
+VDL_1:12:int_power(int,int):x == 1 => 1
+VDL_2:15:int_power(int,int):y == 1 => 1
+VDL_3:20:int_power(int,int):i <= y => y
+VDL_4:20:int_power(int,int):i <= y => i
+VDL_5:21:int_power(int,int):P * x => x
+VDL_6:21:int_power(int,int):P * x => P
+VDL_7:22:int_power(int,int):i++ =>  
+VDL_8:29:boolean_prime(int):n < 2 => 2
+VDL_9:32:boolean_prime(int):i <= Math.sqrt( n ) => Math.sqrt( n )
+VDL_10:32:boolean_prime(int):i++ =>  
+VDL_11:33:boolean_prime(int):n % i => i
+VDL_12:33:boolean_prime(int):n % i => n
+ODL_1:12:int_power(int,int):x == 1 => x
+ODL_2:12:int_power(int,int):x == 1 => 1
+ODL_3:15:int_power(int,int):y == 1 => y
+ODL_4:15:int_power(int,int):y == 1 => 1
+ODL_5:20:int_power(int,int):i <= y => i
+ODL_6:20:int_power(int,int):i <= y => y
+ODL_7:21:int_power(int,int):P * x => P
+ODL_8:21:int_power(int,int):P * x => x
+ODL_9:22:int_power(int,int):i++ => i
+ODL_10:29:boolean_prime(int):n < 2 => n
+ODL_11:29:boolean_prime(int):n < 2 => 2
+ODL_12:32:boolean_prime(int):i <= Math.sqrt( n ) => i
+ODL_13:32:boolean_prime(int):i <= Math.sqrt( n ) => Math.sqrt( n )
+ODL_14:32:boolean_prime(int):i++ => i
+ODL_15:33:boolean_prime(int):n % i => n
+ODL_16:33:boolean_prime(int):n % i => i
+ODL_17:33:boolean_prime(int):n % i == 0 => n % i
+ODL_18:33:boolean_prime(int):n % i == 0 => 0
+CDL_1:12:int_power(int,int):x == 1 => x
+CDL_2:15:int_power(int,int):y == 1 => y
+CDL_3:29:boolean_prime(int):n < 2 => n
+CDL_4:33:boolean_prime(int):n % i == 0 => n % i
