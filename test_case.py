@@ -9,7 +9,7 @@ class TestCase:
         self.output = test_case[-1]
         self.bit_input = None
         self.bit_size = bit_size
-        self.mutant_proportion = None
+        # self.mutant_proportion = None
 
     def convert_to_bits(self):
         # print('convert_to_bits')

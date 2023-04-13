@@ -1,6 +1,8 @@
 import os
+import threading
 from pathlib import Path
 import jpype
+import numpy as np
 from jpype import java
 
 import pathlib
@@ -25,7 +27,8 @@ def apply_mutation_testing(return_type, method_name, method_params):
     print('power_mutation_testing')
     test_set_data = pd.read_csv(
         'programs/' + form_method_signature(return_type, method_name, method_params) + 'test_set.csv')
-    print('test set data', test_set_data)
+    print('test set data')
+    print(test_set_data)
     test_set = []
     for test_case in test_set_data.values:
         test_set.append(TestCase(test_case, 8))
@@ -34,13 +37,16 @@ def apply_mutation_testing(return_type, method_name, method_params):
     mutants = list(
         filter(lambda m: m.method == form_method_signature(return_type, method_name, method_params), mutants))
     print_mutant_list(mutants)
-    verify_initial_test_set(method_name, test_set)
-    mutants = kill_equivalent_mutants(method_name, mutants)
-    print_mutant_list(mutants)
+    # verify_initial_test_set(method_name, test_set)
+    # mutants = kill_equivalent_mutants(method_name, mutants)
+    # print_mutant_list(mutants)
+    if len(mutants) == 0:
+        print('All mutants were killed... Stopping mutation testing process...')
+        exit()
 
     scores = []
     test_set = convert_to_bits(test_set)
-    for i in range(0, 3):
+    for i in range(0, 0):
         print('genetic algorithm iteration', i)
         score = evaluate_mutation_score(method_name, mutants, test_set)
         scores.append(score)
@@ -62,6 +68,7 @@ def convert_from_bits(test_set):
     for test_case in test_set:
         test_case.convert_to_bits()
     return test_set
+
 
 def recalculate_outputs(test_set, method_name):
     for test_case in test_set:
@@ -100,29 +107,64 @@ def form_method_signature(return_type, method_name, method_params):
 def evaluate_mutation_score(method_name, mutants, test_set):
     print('evaluate_mutation_score')
     print('length of mutant list', len(mutants))
-    score = 0
-    for mutant in mutants:
-        print(mutant.operator)
+    inverted_mutation_table = []
+    for i, mutant in enumerate(mutants):
+        score_line = []
+        # print(mutant.operator)
         mutant_package = 'mujava.result.Algorithm.traditional_mutants.' + mutant.method + '.' + mutant.operator + '.Algorithm'
         Algorithm = jpype.JClass(mutant_package)
         alg = Algorithm()
-        for test_case in test_set:
-            print(test_case.input, test_case.output)
-            # todo solve infinite loop problem
-            output = getattr(alg, method_name)(*test_case.input)
-            print('output', output)
+        for j, test_case in enumerate(test_set):
+            # print(test_case.input, test_case.output)
+            output = run_java_method(alg, method_name, test_case)
             # print('mutant and test_case', mutant.operator, test_case.input, output)
-            if test_case.output != output:
+            is_correct = test_case.output != output
+            score_line.append(is_correct)
+            if not is_correct:
                 mutant.is_killed = True
-                score += 1
-    print('score', score, '/', len(mutants))
-    return score / len(mutants)
+        inverted_mutation_table.append(score_line)
+    mutation_table = list(map(list, zip(*inverted_mutation_table)))
+    print_mutation_table(mutation_table, test_set)
+    count_score = [all(col) for col in inverted_mutation_table].count(False)
+    print('score', count_score, '/', len(mutants))
+    score = count_score / len(mutants)
+    return score
+
+
+def print_mutation_table(mutation_table, test_set):
+    print('mutation table')
+    for i in range (0, len(mutation_table)):
+        print(*bool_array_to_int(mutation_table[i]))
+    print('test case info')
+    for i in range (0, len(mutation_table)):
+        mutant_proportion = mutation_table[i].count(True) / len(mutation_table[i])
+        print(test_set[i].input, test_set[i].output, mutant_proportion)
+
+
+def bool_array_to_int(boolean_list):
+    return [1 if x else 0 for x in boolean_list]
+
+
+def run_java_method(alg, method_name, test_case):
+    output = [None]
+
+    def run_alg():
+        output[0] = getattr(alg, method_name)(*test_case.input)
+
+    java_thread = threading.Thread(target=run_alg)
+    java_thread.daemon = True
+    java_thread.start()
+    # todo set the timer to 1 second
+    java_thread.join(timeout=0.01)
+    return output[0]
 
 
 def kill_equivalent_mutants(method_name, mutants):
     print('kill_equivalent_mutants')
-    # code1 = Path('mujava/VendingMachine.java').read_text()
-    # code2 = Path('mujava/VendingMachineM.java').read_text()
+    # code1 = Path('mujava/junk/original/Algorithm.java').read_text()
+    # code2 = Path('mujava/junk/mutant/Algorithm.java').read_text()
+    # evaluate([[code1, code2]], 'playerLogout')
+    # exit()
     original_code = get_original_code()
     print('original code clone detection results')
     evaluate([[original_code, original_code]], method_name)
