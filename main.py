@@ -46,11 +46,11 @@ def apply_mutation_testing(return_type, method_name, method_params):
 
     scores = []
     test_set = convert_to_bits(test_set)
-    for i in range(0, 0):
+    for i in range(0, 2):
         print('genetic algorithm iteration', i)
         score = evaluate_mutation_score(method_name, mutants, test_set)
         scores.append(score)
-        apply_genetic_operations(test_set)
+        apply_genetic_operations(test_set, method_name)
         test_set = convert_from_bits(test_set)
         recalculate_outputs(test_set, method_name)
     score = evaluate_mutation_score(method_name, mutants, test_set)
@@ -76,28 +76,35 @@ def recalculate_outputs(test_set, method_name):
     return test_set
 
 
-def apply_genetic_operations(test_set):
+def apply_genetic_operations(test_set, method_name):
     # print('apply_genetic_operations')
     removal_threshold = 0.2
     threshold = 0.5
     amount_of_test_cases = len(test_set)
 
-    # todo implement genetic algorithm
-    # # selection
-    # for test_case in test_set:
-    #     if test_case.mutant_proportion <= removal_threshold:
-    #         test_set.remove(test_case)
-    #
-    # # mutation
-    # for test_case in test_set:
-    #     if test_case.mutant_proportion <= threshold:
-    #         mutate(test_case.bit_input)
-    #
-    # # crossover
-    # for test_case in test_set:
-    #     print('generate new test cases')
-    # while len(test_set) < amount_of_test_cases:
-    #     test_set.append(crossover(test_set))
+    # selection
+    for test_case in test_set:
+        if test_case.mutant_proportion <= removal_threshold:
+            # print('remove', test_case.bit_input)
+            test_set.remove(test_case)
+
+        # todo temporary solution to avoid losing all test cases
+        # todo alternative is to generate new test cases from scratch in this case
+        if len(test_set) <= 2:
+            break
+
+    # mutation
+    for test_case in test_set:
+        if test_case.mutant_proportion <= threshold:
+            # print('mutate', test_case.bit_input)
+            mutate(test_case.bit_input)
+
+    # crossover
+    # todo think how to avoid generating the same test cases
+    # todo test case probably should be regenerated in this case
+    while len(test_set) < amount_of_test_cases:
+        test_set.append(TestCase(None, 8, crossover(test_set), method_name))
+        # print('crossovered', test_set[-1].bit_input)
 
 
 def form_method_signature(return_type, method_name, method_params):
@@ -124,6 +131,8 @@ def evaluate_mutation_score(method_name, mutants, test_set):
                 mutant.is_killed = True
         inverted_mutation_table.append(score_line)
     mutation_table = list(map(list, zip(*inverted_mutation_table)))
+    for i, test_case in enumerate(test_set):
+        test_case.mutant_proportion = mutation_table[i].count(True) / len(mutation_table[i])
     print_mutation_table(mutation_table, test_set)
     count_score = [all(col) for col in inverted_mutation_table].count(False)
     print('score', count_score, '/', len(mutants))
@@ -137,8 +146,7 @@ def print_mutation_table(mutation_table, test_set):
         print(*bool_array_to_int(mutation_table[i]))
     print('test case info')
     for i in range (0, len(mutation_table)):
-        mutant_proportion = mutation_table[i].count(True) / len(mutation_table[i])
-        print(test_set[i].input, test_set[i].output, mutant_proportion)
+        print(test_set[i].input, test_set[i].output, test_set[i].mutant_proportion)
 
 
 def bool_array_to_int(boolean_list):

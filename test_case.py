@@ -4,12 +4,18 @@ from constants import absolute_path
 
 
 class TestCase:
-    def __init__(self, test_case, bit_size):
-        self.input = test_case[:-1]
-        self.output = test_case[-1]
-        self.bit_input = None
+    def __init__(self, test_case, bit_size, bit_input=None, method_name=None):
         self.bit_size = bit_size
-        # self.mutant_proportion = None
+        self.mutant_proportion = None
+        if bit_input is not None:
+            self.bit_input = bit_input
+            self.convert_from_bits()
+            assert method_name is not None
+            self.recalculate_output(method_name)
+        else:
+            self.input = test_case[:-1]
+            self.output = test_case[-1]
+            self.bit_input = None
 
     def convert_to_bits(self):
         # print('convert_to_bits')
@@ -27,6 +33,7 @@ class TestCase:
         # print('recalculate_output')
         Algorithm = jpype.JClass('mujava.result.Algorithm.original.Algorithm')
         alg = Algorithm()
+        print('*self.input', *self.input)
         self.output = getattr(alg, method_name)(*self.input)
 
     def print_test_case(self):
