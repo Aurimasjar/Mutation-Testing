@@ -4,10 +4,12 @@ import subprocess
 
 initial_mujava_path = 'mujava/result/Algorithm/'
 absolute_path = 'C:/Users/a.petretis/PycharmProjects/Mutation-Testing'
+
+
 def fix_package_structure():
     # set package names for original code
     original_code_path = initial_mujava_path + 'original/Algorithm.java'
-    set_package(original_code_path)
+    set_package(original_code_path)  # or rewrite package if source codes includes package keyword
     compile_java(original_code_path)
 
     # rename directories to have valid package names
@@ -24,10 +26,20 @@ def fix_package_structure():
         operator_list = [d for d in next(os.walk(initial_mujava_path + 'traditional_mutants/' + method))[1]]
         for operator in operator_list:
             mutant_path = initial_mujava_path + 'traditional_mutants/' + method + '/' + operator + '/Algorithm.java'
-            set_package(mutant_path)
+            set_package(mutant_path)   # or rewrite package if source codes includes package keyword
             compile_java(mutant_path)
 
+
 def set_package(code_path):
+    package_name = '.'.join(code_path.split('/')[:-1])
+    with open(code_path, 'r', encoding='utf-8') as file:
+        code = file.readlines()
+    code.insert(0, 'package ' + package_name + ';\n\n')
+    with open(code_path, 'w', encoding='utf-8') as file:
+        file.writelines(code)
+
+
+def rewrite_package(code_path):
     package_name = '.'.join(code_path.split('/')[:-1])
     with open(code_path, 'r', encoding='utf-8') as file:
         code = file.readlines()

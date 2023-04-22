@@ -1,4 +1,0 @@
-C:\Users\a.petretis\PycharmProjects\Mutation-Testing\mujava\result\Algorithm\traditional_mutants\boolean_prime(int)\VDL_9\Algorithm.java:32: error: incompatible types: double cannot be converted to boolean
-        for (int i = 2; Math.sqrt( n ); i++) {
-                                 ^
-1 error

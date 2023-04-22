@@ -1,5 +1,3 @@
-package programs;
-
 public class Algorithm {
 
     public int power(int x, int y) {
