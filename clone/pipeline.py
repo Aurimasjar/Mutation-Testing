@@ -17,7 +17,7 @@ class Pipeline:
     def __init__(self, ratio, root, language: str):
 
         self.language = language.lower()
-        assert self.language in ('c', 'java')
+        assert self.language in ('c', 'java', 'javamut')
         self.ratio = ratio
         self.root = root
         self.sources = None
@@ -67,12 +67,18 @@ class Pipeline:
                 import javalang
 
                 def parse_program(func):
+                    # if self.language == 'java':
                     tokens = javalang.tokenizer.tokenize(func, True)
                     parser = javalang.parser.Parser(tokens)
                     tree = parser.parse_member_declaration()
+                    # else:
+                    #     tree = javalang.parse.parse(func)
                     return tree
 
-                source = pd.read_csv(input_path, delimiter='\t')
+                if self.language == 'java':
+                    source = pd.read_csv(input_path, delimiter='\t')
+                else:
+                    source = pd.read_csv(input_path)
                 source.columns = ['id', 'code']
                 source['source_code'] = source['code']
                 source['code'] = source['code'].progress_apply(parse_program)
@@ -245,9 +251,13 @@ class Pipeline:
     # run for processing data to train
     def run(self):
         print('parse source code...')
-        input_file = (
-            'programs.pkl' if self.language == 'c' else 'bcb_funcs_all.tsv'
-        )
+        input_file = ''
+        if self.language == 'c':
+            input_file = 'programs.pkl'
+        elif self.language == 'java':
+            input_file = 'bcb_funcs_all.tsv'
+        else:
+            input_file = 'mut_funcs_all.tsv'
         if os.path.exists(os.path.join(self.root, self.language, 'ast.pkl')):
             print('a')
             self.get_parsed_source(input_file='ast.pkl')
@@ -257,8 +267,10 @@ class Pipeline:
         print('read id pairs...')
         if self.language == 'c':
             self.read_pairs('oj_clone_ids.pkl')
-        else:
+        elif self.language == 'java':
             self.read_pairs('bcb_pair_ids.pkl')
+        else:
+            self.read_pairs('mut_pair_ids.pkl')
 
         print('calculate metrics...')
         self.calculate_metrics('metrics.pkl')
@@ -275,12 +287,19 @@ class Pipeline:
         self.merge(self.test_file_path, 'test')
 
 
+    def test(self):
+        source = pd.read_csv(os.path.join(self.root, self.language, 'mut_funcs_all.tsv'))
+        pairs = pd.read_pickle(os.path.join(self.root, self.language, 'mut_pair_ids.pkl'))
+        print('source and pairs first element', source[0], pairs[0])
+
+
 @click.command()
 @click.option('--lang', required=True, type=str,
-              help="Language for the code input ('c' or 'java')")
+              help="Language for the code input ('c' or 'java or javamut')")
 def main(lang):
     ppl = Pipeline('3:1:1', 'data/', str(lang))
     ppl.run()
+    # ppl.test()
     print("finished")
 
 

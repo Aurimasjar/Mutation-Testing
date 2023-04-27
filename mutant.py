@@ -1,10 +1,10 @@
 class Mutant:
-    def __init__(self, filename, method, operator, code):
+    def __init__(self, filename, method, operator, method_code):
         self.filename = filename
         self.method = method
         self.operator = operator
-        self.code = code
-        self.method_code = None
+        self.code = None
+        self.method_code = method_code
         self.is_equivalent = None
         self.is_killed = None
 
