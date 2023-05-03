@@ -92,14 +92,17 @@ class Pipeline:
         Args:
             filename (str): [description]
         """
-        pairs = pd.read_pickle(os.path.join(self.root, self.language,
+        if self.language == 'javamut':
+            self.pairs = pd.read_csv(os.path.join(self.root, self.language,
                                             filename))
-        # fix pairs list by removing pairs with non-existent code ids from the original bcb dataset
-        filtered_pairs = pairs[~pairs['id1'].isin(
-            [1032896, 74, 2524323, 5180407, 8643644, 15503077, 12639648, 19727309, 20395377, 8040734, 22237273]
-        )]
-        # print('pairs', pairs)
-        self.pairs = filtered_pairs
+        else:
+            self.pairs = pd.read_pickle(os.path.join(self.root, self.language,
+                                            filename))
+            if self.language == 'java':
+                # fix pairs list by removing pairs with non-existent code ids from the original bcb dataset
+                filtered_pairs = self.pairs[~self.pairs['id1'].isin(
+                    [1032896, 74, 2524323, 5180407, 8643644, 15503077, 12639648, 19727309, 20395377, 8040734, 22237273]
+                )]
 
     # calculate metrics for each ast
     def calculate_metrics(self, output_file):
@@ -257,7 +260,7 @@ class Pipeline:
         elif self.language == 'java':
             input_file = 'bcb_funcs_all.tsv'
         else:
-            input_file = 'mut_funcs_all.tsv'
+            input_file = 'mut_funcs_all.csv'
         if os.path.exists(os.path.join(self.root, self.language, 'ast.pkl')):
             print('a')
             self.get_parsed_source(input_file='ast.pkl')
@@ -270,7 +273,7 @@ class Pipeline:
         elif self.language == 'java':
             self.read_pairs('bcb_pair_ids.pkl')
         else:
-            self.read_pairs('mut_pair_ids.pkl')
+            self.read_pairs('mut_pair_ids.csv')
 
         print('calculate metrics...')
         self.calculate_metrics('metrics.pkl')

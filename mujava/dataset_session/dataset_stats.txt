@@ -1,0 +1,12 @@
+total generated mutants: 10027
+total tested mutants: 9907
+live mutants: 1036
+killed mutants: 8871
+mutant score: 89.0%
+
+total original programs: 77
+total mutants collected from output file: 9806
+total equivalent mutants collected from output file: 1023
+total non-equivalent mutants collected from output file: 8783
+mutant score: 89.6%
+total programs: 9883

@@ -10,6 +10,8 @@ from mutant import Mutant
 
 session_path = 'dataset_session'
 algorithm_class = 'DatasetRootAlgorithm'
+test_file = 'dataset_output.txt'
+# test_file = 'output.txt'
 
 
 def print_mutants(mutants):
@@ -42,8 +44,8 @@ def get_original_methods():
 
 
 def get_method_code(code, method):
-    method_name = method.split('(')[0] + '('
-    method_name = method_name.replace('_', ' ')
+    method_name = ' ' + method.split('(')[0].split('_')[1] + '('
+    # method_name = method_name.replace('_', ' ')
     code_line_list = code.split('\n')
     pos1 = [idx for idx, s in enumerate(code_line_list) if method_name in s][0]
     pos2 = get_method_end_position(code_line_list, pos1)
@@ -54,7 +56,9 @@ def get_method_code(code, method):
 def get_method_end_position(code_line_list, pos1):
     depth = 1
     for i in range(pos1 + 2, len(code_line_list)):
-        if '{' in code_line_list[i]:
+        if '{' in code_line_list[i] and '}' in code_line_list[i]:
+            continue
+        elif '{' in code_line_list[i]:
             depth += 1
         elif '}' in code_line_list[i]:
             depth -= 1
@@ -64,17 +68,22 @@ def get_method_end_position(code_line_list, pos1):
 
 
 # classify mutants using data from file, generated with mujava tool
+# in the source file it must be ensured that all methods passed written tests, otherwise mutant test results are not reliable
 def get_mutant_classification_map():
     mutant_map = {}
-    fp = open('./mujava/' + session_path + '/output.txt', 'r')
+    fp = open('./mujava/' + session_path + '/' + test_file, 'r')
     test_report = [line.rstrip() for line in fp]
     fp.close()
     index = test_report.index('======================================== Generating Original Test Results '
                               '========================================')
     test_case_count = test_report[index + 1].count('pass')
-    for line in test_report:
+    for idx, line in enumerate(test_report):
         if line.startswith('  '):
-            operator = re.split('[ {]', line)[2]
+            operator = line.split('{')[0].split(' ')
+            if 'time_out:' in operator:
+                operator = operator[operator.index('time_out:') - 1]
+            else:
+                operator = operator[-1]
             is_equivalent = line.count('pass') == test_case_count
             mutant_map[operator] = is_equivalent
 
@@ -83,14 +92,10 @@ def get_mutant_classification_map():
 
 def classify_mutants(mutants):
     mutant_map = get_mutant_classification_map()
+    mutants = list(filter(lambda m : m.operator in mutant_map, mutants))
     for mutant in mutants:
         mutant.set_is_equivalent(mutant_map[mutant.operator])
     return mutants
-    # vector_array = np.array(mutant.vector)
-    # if mutant.is_equivalent:
-    #     np.savetxt('./data/equivalent/' + mutant.operator + '.csv', vector_array, delimiter=',')
-    # else:
-    #     np.savetxt('./data/non_equivalent/' + mutant.operator + '.csv', vector_array, delimiter=',')
 
 
 def form_dataset(original_methods, mutants):
@@ -107,9 +112,8 @@ def form_dataset(original_methods, mutants):
         new_pair = pd.DataFrame({'id1': index, 'id2': omindex, 'label': mutant.is_equivalent})
         mut_pairs = pd.concat([mut_pairs, new_pair], ignore_index=True)
 
-    mut_dataset.to_csv('clone/data/javamut/mut_funcs_all.tsv', index=False)
-    mut_pairs.to_pickle('clone/data/javamut/mut_pair_ids.pkl')
-    print('form_dataset')
+    mut_dataset.to_csv('clone/data/javamut/mut_funcs_all.csv', index=False)
+    mut_pairs.to_csv('clone/data/javamut/mut_pair_ids.csv')
 
 
 def prepare_dataset():
