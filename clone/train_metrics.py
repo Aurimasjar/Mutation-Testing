@@ -5,6 +5,7 @@ import numpy as np
 import warnings
 from torch.autograd import Variable
 from sklearn.metrics import precision_recall_fscore_support
+from ast import literal_eval
 
 import model_training
 import plot
@@ -38,15 +39,18 @@ if __name__ == '__main__':
     if lang == 'java':
         categories = 5
     print("Train for ", str.upper(lang))
-    train_data = pd.read_pickle(root + lang + '/train/metrics.pkl').sample(frac=1)
-    valid_data = pd.read_pickle(root + lang + '/dev/metrics.pkl').sample(frac=1)
-    test_data = pd.read_pickle(root + lang + '/test/metrics.pkl').sample(frac=1)
+    train_data = pd.read_csv(root + lang + '/train/blocks_and_metrics.csv',
+        converters={"metrics_x": literal_eval, "metrics_y": literal_eval}).sample(frac=1)
+    valid_data = pd.read_csv(root + lang + '/dev/blocks_and_metrics.csv',
+        converters={"metrics_x": literal_eval, "metrics_y": literal_eval}).sample(frac=1)
+    test_data = pd.read_csv(root + lang + '/test/blocks_and_metrics.csv',
+        converters={"metrics_x": literal_eval, "metrics_y": literal_eval}).sample(frac=1)
     METRICS_DIM = 44
     for atd_i in range(0, len(test_data['metrics_x'])-1):
         if isinstance(test_data['metrics_x'][atd_i], float):
             test_data['metrics_x'][atd_i] = [0] * METRICS_DIM
 
-    EPOCHS = 80
+    EPOCHS = 5
     BATCH_SIZE = 32
     USE_GPU = False
     THRESHOLD = 0.5
@@ -61,7 +65,7 @@ if __name__ == '__main__':
     means = [np.mean(x) for x in metrics_data]
     stds = [np.std(x) for x in metrics_data]
     metadata = pd.DataFrame({'means': means, 'stds': stds})
-    metadata.to_pickle((root + lang + '/train' + '/metadata.pkl'))
+    metadata.to_csv((root + lang + '/train' + '/metadata.csv'))
 
     print('Create model...')
     model = MetricsModel(METRICS_DIM, BATCH_SIZE, means, stds)
@@ -93,8 +97,10 @@ if __name__ == '__main__':
             test_data_t.loc[test_data_t['label'] > 0, 'label'] = 1
             if t != 3:
                 continue
-        else:
+        elif lang == 'c':
             train_data_t, valid_data_t, test_data_t = train_data, valid_data, test_data
+        else:
+            train_data_t, test_data_t = train_data, test_data
         # training procedure
         for epoch in range(EPOCHS):
             print('epoch', epoch)
@@ -110,7 +116,7 @@ if __name__ == '__main__':
             i = 0
             model.train()
             while i < len(train_data_t):
-                # print("train", i, " \ ", len(train_data_t))
+                print('train', i, ' / ', len(train_data_t))
                 batch = get_batch(train_data_t, i, BATCH_SIZE)
                 i += BATCH_SIZE
                 train1_inputs, train2_inputs, train_labels = batch
@@ -134,27 +140,28 @@ if __name__ == '__main__':
             train_acc_data.append(train_acc)
             train_loss_data.append(total_loss / total)
 
-            i = 0
-            model.eval()
-            while i < len(valid_data_t):
-                # print("validation", i, " \ ", len(valid_data_t))
-                batch = get_batch(valid_data_t, i, BATCH_SIZE)
-                i += BATCH_SIZE
-                valid1_inputs, valid2_inputs, valid_labels = batch
-                if USE_GPU:
-                    valid1_inputs, valid2_inputs, valid_labels = valid1_inputs, valid2_inputs, valid_labels.cuda()
+            if lang != 'javamut':
+                i = 0
+                model.eval()
+                while i < len(valid_data_t):
+                    # print("validation", i, " \ ", len(valid_data_t))
+                    batch = get_batch(valid_data_t, i, BATCH_SIZE)
+                    i += BATCH_SIZE
+                    valid1_inputs, valid2_inputs, valid_labels = batch
+                    if USE_GPU:
+                        valid1_inputs, valid2_inputs, valid_labels = valid1_inputs, valid2_inputs, valid_labels.cuda()
 
-                output = model(valid1_inputs, valid2_inputs)
-                loss = loss_function(output, Variable(valid_labels))
-                valid_total_loss += loss.item() * len(valid_labels)
-                valid_predicts.extend((output.data > THRESHOLD).cpu().numpy())
-                valid_trues.extend(valid_labels.cpu().numpy())
-                valid_total += len(valid_labels)
+                    output = model(valid1_inputs, valid2_inputs)
+                    loss = loss_function(output, Variable(valid_labels))
+                    valid_total_loss += loss.item() * len(valid_labels)
+                    valid_predicts.extend((output.data > THRESHOLD).cpu().numpy())
+                    valid_trues.extend(valid_labels.cpu().numpy())
+                    valid_total += len(valid_labels)
 
-            valid_acc = model_training.count_accuracy(valid_trues, valid_predicts)
+                valid_acc = model_training.count_accuracy(valid_trues, valid_predicts)
 
-            valid_acc_data.append(valid_acc)
-            valid_loss_data.append(valid_total_loss / valid_total)
+                valid_acc_data.append(valid_acc)
+                valid_loss_data.append(valid_total_loss / valid_total)
 
         endd_time = time.time()
         print("Training finished time", endd_time)
@@ -162,10 +169,15 @@ if __name__ == '__main__':
         torch.save(model.state_dict(), model_filepath)
         print('train_loss_data', train_loss_data)
         print('train_acc_data', train_acc_data)
-        print('valid_loss_data', valid_loss_data)
-        print('valid_acc_data', valid_acc_data)
-        plot.plot_training_loss_stats(train_loss_data, valid_loss_data, 'java_metrics_tv_80_loss_function')
-        plot.plot_training_acc_stats(train_acc_data, valid_acc_data, 'java_metrics_tv_80_acc_function')
+
+        if lang != 'javamut':
+            print('valid_loss_data', valid_loss_data)
+            print('valid_acc_data', valid_acc_data)
+            plot.plot_training_loss_stats(train_loss_data, valid_loss_data, 'java_metrics_loss_function')
+            plot.plot_training_acc_stats(train_acc_data, valid_acc_data, 'java_metrics_acc_function')
+        else:
+            plot.plot_training_loss_wv_stats(train_loss_data, 'java_metrics_loss_function')
+            plot.plot_training_acc_wv_stats(train_acc_data, 'java_metrics_acc_function')
 
         print("Testing-%d..." % t)
         # testing procedure

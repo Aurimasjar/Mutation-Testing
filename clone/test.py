@@ -67,7 +67,7 @@ if __name__ == '__main__':
     if lang == 'java':
         categories = 5
     print("Test for ", str.upper(lang))
-    test_data = pd.read_pickle(root + lang + '/test/metrics.pkl').sample(frac=1)
+    test_data = pd.read_csv(root + lang + '/test/blocks_and_metrics.csv').sample(frac=1)
     METRICS_DIM = 44
     # if lang == 'java':
     #     for atd_i in range(0, len(test_data['code_x'])-1):
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     USE_GPU = False
     ast_model_filepath = 'output/' + lang + '/ast_model.pkl'
     metrics_model_filepath = 'output/' + lang + '/metrics_model.pkl'
-    metadata = pd.read_pickle(root + lang + '/train' + '/metadata.pkl')
+    metadata = pd.read_csv(root + lang + '/train' + '/metadata.csv')
     means, stds = metadata['means'].tolist(), metadata['stds'].tolist()
 
     ast_model = BatchProgramCC(EMBEDDING_DIM, MAX_TOKENS + 1, BATCH_SIZE, embeddings)

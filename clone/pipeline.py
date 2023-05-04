@@ -51,28 +51,25 @@ class Pipeline:
         """
         input_path = os.path.join(self.root, self.language, input_file)
         if output_file is None:
-            source = pd.read_pickle(input_path)
+            source = pd.read_csv(input_path)
 
         else:
             output_path = os.path.join(self.root, self.language, output_file)
             if self.language == 'c':
                 from pycparser import c_parser
                 parser = c_parser.CParser()
-                source = pd.read_pickle(input_path)
+                source = pd.read_csv(input_path)
                 source.columns = ['id', 'code', 'label']
                 source['code'] = []
                 source['code'] = source['code'].progress_apply(parser.parse)
-                source.to_pickle(output_path)
+                source.to_csv(output_path)
             else:
                 import javalang
 
                 def parse_program(func):
-                    # if self.language == 'java':
                     tokens = javalang.tokenizer.tokenize(func, True)
                     parser = javalang.parser.Parser(tokens)
                     tree = parser.parse_member_declaration()
-                    # else:
-                    #     tree = javalang.parse.parse(func)
                     return tree
 
                 if self.language == 'java':
@@ -82,7 +79,7 @@ class Pipeline:
                 source.columns = ['id', 'code']
                 source['source_code'] = source['code']
                 source['code'] = source['code'].progress_apply(parse_program)
-                source.to_pickle(output_path)
+                source.to_csv(output_path)
         self.sources = source
         return source
 
@@ -96,7 +93,7 @@ class Pipeline:
             self.pairs = pd.read_csv(os.path.join(self.root, self.language,
                                             filename))
         else:
-            self.pairs = pd.read_pickle(os.path.join(self.root, self.language,
+            self.pairs = pd.read_csv(os.path.join(self.root, self.language,
                                             filename))
             if self.language == 'java':
                 # fix pairs list by removing pairs with non-existent code ids from the original bcb dataset
@@ -113,7 +110,7 @@ class Pipeline:
         print('self.metrics', self.metrics)
         self.sources['metrics'] = self.metrics
         output_path = os.path.join(self.root, self.language, output_file)
-        self.sources['metrics'].to_pickle(output_path)
+        self.sources['metrics'].to_csv(output_path)
         self.metrics = self.sources
 
     # split data for training, developing and testing
@@ -136,18 +133,18 @@ class Pipeline:
 
         train_path = data_path + 'train/'
         check_or_create(train_path)
-        self.train_file_path = train_path + 'train_.pkl'
-        train.to_pickle(self.train_file_path)
+        self.train_file_path = train_path + 'train_.csv'
+        train.to_csv(self.train_file_path)
 
         dev_path = data_path + 'dev/'
         check_or_create(dev_path)
-        self.dev_file_path = dev_path + 'dev_.pkl'
-        dev.to_pickle(self.dev_file_path)
+        self.dev_file_path = dev_path + 'dev_.csv'
+        dev.to_csv(self.dev_file_path)
 
         test_path = data_path + 'test/'
         check_or_create(test_path)
-        self.test_file_path = test_path + 'test_.pkl'
-        test.to_pickle(self.test_file_path)
+        self.test_file_path = test_path + 'test_.csv'
+        test.to_csv(self.test_file_path)
 
     # construct dictionary and train word embedding
     def dictionary_and_embedding(self, input_file, size):
@@ -155,7 +152,7 @@ class Pipeline:
         data_path = self.root + self.language + '/'
         if not input_file:
             input_file = self.train_file_path
-        pairs = pd.read_pickle(input_file)
+        pairs = pd.read_csv(input_file)
         train_ids = pairs['id1'].append(pairs['id2']).unique()
 
         trees = self.sources.set_index('id', drop=False).loc[train_ids]
@@ -176,7 +173,7 @@ class Pipeline:
         corpus = trees['code'].apply(trans_to_sequences)
         str_corpus = [' '.join(c) for c in corpus]
         trees['code'] = pd.Series(str_corpus)
-        trees.to_csv(data_path + 'train/programs_ns.tsv')
+        trees.to_csv(data_path + 'train/programs_ns.csv')
 
         from gensim.models.word2vec import Word2Vec
         w2v = Word2Vec(corpus, vector_size=size, workers=16, sg=1,
@@ -223,7 +220,7 @@ class Pipeline:
 
     # merge pairs
     def merge(self, data_path, part):
-        pairs = pd.read_pickle(data_path)
+        pairs = pd.read_csv(data_path)
         pairs['id1'] = pairs['id1'].astype(int)
         pairs['id2'] = pairs['id2'].astype(int)
         df = pd.merge(pairs, self.blocks, how='left',
@@ -233,50 +230,35 @@ class Pipeline:
         df.drop(['id_x', 'id_y'], axis=1, inplace=True)
         df.dropna(inplace=True)
 
-        df.to_pickle(self.root + self.language + '/' + part + '/blocks.pkl')
-        df.to_pickle(self.root + self.language + '/' + part + '/metrics.pkl')
-        df.to_pickle(self.root + self.language + '/' + part + '/source_code.pkl')
+        df.to_csv(self.root + self.language + '/' + part + '/blocks_and_metrics.csv')
 
-    # merge pairs for metrics model
-    def merge_metrics(self, data_path, part):
-        pairs = pd.read_pickle(data_path)
-        pairs['id1'] = pairs['id1'].astype(int)
-        pairs['id2'] = pairs['id2'].astype(int)
-        df = pd.merge(pairs, self.metrics, how='left',
-                      left_on='id1', right_on='id')
-        df = pd.merge(df, self.metrics, how='left',
-                      left_on='id2', right_on='id')
-        df.drop(['id_x', 'id_y'], axis=1, inplace=True)
-        df.dropna(inplace=True)
-
-        df.to_pickle(self.root + self.language + '/' + part + '/metrics.pkl')
 
     # run for processing data to train
     def run(self):
         print('parse source code...')
         input_file = ''
         if self.language == 'c':
-            input_file = 'programs.pkl'
+            input_file = 'programs.csv'
         elif self.language == 'java':
-            input_file = 'bcb_funcs_all.tsv'
+            input_file = 'bcb_funcs_all.csv'
         else:
             input_file = 'mut_funcs_all.csv'
-        if os.path.exists(os.path.join(self.root, self.language, 'ast.pkl')):
+        if os.path.exists(os.path.join(self.root, self.language, 'ast.csv')):
             print('a')
-            self.get_parsed_source(input_file='ast.pkl')
+            self.get_parsed_source(input_file='ast.csv')
         else:
             self.get_parsed_source(input_file=input_file,
-                                   output_file='ast.pkl')
+                                   output_file='ast.csv')
         print('read id pairs...')
         if self.language == 'c':
-            self.read_pairs('oj_clone_ids.pkl')
+            self.read_pairs('oj_clone_ids.csv')
         elif self.language == 'java':
-            self.read_pairs('bcb_pair_ids.pkl')
+            self.read_pairs('bcb_pair_ids.csv')
         else:
             self.read_pairs('mut_pair_ids.csv')
 
         print('calculate metrics...')
-        self.calculate_metrics('metrics.pkl')
+        self.calculate_metrics('metrics.csv')
 
         print('split data...')
         self.split_data()
@@ -285,22 +267,23 @@ class Pipeline:
         print('generate block sequences...')
         self.generate_block_seqs()
         print('merge pairs and blocks...')
-        # self.merge(self.train_file_path, 'train')
-        # self.merge(self.dev_file_path, 'dev')
+        self.merge(self.train_file_path, 'train')
+        self.merge(self.dev_file_path, 'dev')
         self.merge(self.test_file_path, 'test')
 
 
     def test(self):
-        source = pd.read_csv(os.path.join(self.root, self.language, 'mut_funcs_all.tsv'))
-        pairs = pd.read_pickle(os.path.join(self.root, self.language, 'mut_pair_ids.pkl'))
+        source = pd.read_csv(os.path.join(self.root, self.language, 'mut_funcs_all.csv'))
+        pairs = pd.read_csv(os.path.join(self.root, self.language, 'mut_pair_ids.csv'))
         print('source and pairs first element', source[0], pairs[0])
 
 
 @click.command()
 @click.option('--lang', required=True, type=str,
-              help="Language for the code input ('c' or 'java or javamut')")
+              help="Language for the code input ('c', 'java or javamut')")
 def main(lang):
-    ppl = Pipeline('3:1:1', 'data/', str(lang))
+    split = '4:0:1' if lang == 'javamut' else '3:1:1'
+    ppl = Pipeline(split, 'data/', str(lang))
     ppl.run()
     # ppl.test()
     print("finished")

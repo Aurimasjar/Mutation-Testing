@@ -4,6 +4,7 @@ import time
 import numpy as np
 import warnings
 from gensim.models.word2vec import Word2Vec
+from ast import literal_eval
 
 from ast_model import BatchProgramCC
 from torch.autograd import Variable
@@ -40,8 +41,10 @@ if __name__ == '__main__':
     if lang == 'java':
         categories = 5
     print("Train for ", str.upper(lang))
-    train_data = pd.read_pickle(root+lang+'/train/blocks.pkl').sample(frac=1)
-    test_data = pd.read_pickle(root+lang+'/test/blocks.pkl').sample(frac=1)
+    train_data = pd.read_csv(root+lang+'/train/blocks_and_metrics.csv',
+        converters={"code_x": literal_eval, "code_y": literal_eval}).sample(frac=1)
+    test_data = pd.read_csv(root+lang+'/test/blocks_and_metrics.csv',
+        converters={"code_x": literal_eval, "code_y": literal_eval}).sample(frac=1)
     if lang == 'java':
         for atd_i in range(0, len(test_data['code_x'])-1):
             if isinstance(test_data['code_x'][atd_i], float):
@@ -53,7 +56,7 @@ if __name__ == '__main__':
     embeddings = np.zeros((MAX_TOKENS + 1, EMBEDDING_DIM), dtype="float32")
     embeddings[:word2vec.vectors.shape[0]] = word2vec.vectors
 
-    EPOCHS = 50
+    EPOCHS = 1
     BATCH_SIZE = 32
     USE_GPU = False
     THRESHOLD = 0.5
@@ -87,6 +90,7 @@ if __name__ == '__main__':
             train_data_t, test_data_t = train_data, test_data
         # training procedure
         for epoch in range(EPOCHS):
+            print('epoch ', epoch, '/', EPOCHS)
             epoch_time = time.time()
             print('epoch and start time', epoch, epoch_time)
             # training epoch
@@ -95,7 +99,7 @@ if __name__ == '__main__':
             total = 0.0
             i = 0
             while i < len(train_data_t):
-                # print("train", i, " \ ", len(train_data_t))
+                print('train', i, ' / ', len(train_data_t))
                 batch = get_batch(train_data_t, i, BATCH_SIZE)
                 i += BATCH_SIZE
                 train1_inputs, train2_inputs, train_labels = batch
@@ -108,6 +112,7 @@ if __name__ == '__main__':
                 output = model(train1_inputs, train2_inputs)
 
                 loss = loss_function(output, Variable(train_labels))
+
                 loss.backward()
                 optimizer.step()
 
