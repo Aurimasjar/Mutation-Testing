@@ -1,5 +1,7 @@
 import time
+from ast import literal_eval
 
+import numpy as np
 import pandas as pd
 import os
 import sys
@@ -51,8 +53,7 @@ class Pipeline:
         """
         input_path = os.path.join(self.root, self.language, input_file)
         if output_file is None:
-            source = pd.read_csv(input_path)
-
+            source = pd.read_pickle(input_path)
         else:
             output_path = os.path.join(self.root, self.language, output_file)
             if self.language == 'c':
@@ -62,7 +63,8 @@ class Pipeline:
                 source.columns = ['id', 'code', 'label']
                 source['code'] = []
                 source['code'] = source['code'].progress_apply(parser.parse)
-                source.to_csv(output_path)
+                source.to_csv('ast.csv')
+                source.to_pickle(output_path)
             else:
                 import javalang
 
@@ -79,7 +81,8 @@ class Pipeline:
                 source.columns = ['id', 'code']
                 source['source_code'] = source['code']
                 source['code'] = source['code'].progress_apply(parse_program)
-                source.to_csv(output_path)
+                source.to_csv('ast.csv')
+                source.to_pickle(output_path)
         self.sources = source
         return source
 
@@ -105,9 +108,20 @@ class Pipeline:
     def calculate_metrics(self, output_file):
         if self.language == 'c':
             self.metrics = pd.DataFrame(self.sources['code'].progress_apply(metrics.calculate_c_metrics))
-        else:
+        elif self.language == 'java':
             self.metrics = pd.DataFrame(self.sources['code'].progress_apply(metrics.calculate_java_metrics))
+        else:
+            self.metrics = pd.DataFrame(self.sources['code'].progress_apply(metrics.calculate_java_mut_metrics))
+
+
         print('self.metrics', self.metrics)
+        # write dataset metrics metadata to metrics_data csv file
+        metrics_data = [np.array(list(x)) for x in zip(*self.metrics['code'])]
+        means = [str(round(np.mean(x), 3)) for x in metrics_data]
+        stds = [str(round(np.std(x), 3)) for x in metrics_data]
+        metadata = pd.DataFrame({'means': means, 'stds': stds})
+        metadata.to_csv((self.root + self.language + '/metrics_data_rounded.csv'))
+
         self.sources['metrics'] = self.metrics
         output_path = os.path.join(self.root, self.language, output_file)
         self.sources['metrics'].to_csv(output_path)
@@ -243,12 +257,12 @@ class Pipeline:
             input_file = 'bcb_funcs_all.csv'
         else:
             input_file = 'mut_funcs_all.csv'
-        if os.path.exists(os.path.join(self.root, self.language, 'ast.csv')):
+        if os.path.exists(os.path.join(self.root, self.language, 'ast.pkl')):
             print('a')
-            self.get_parsed_source(input_file='ast.csv')
+            self.get_parsed_source(input_file='ast.pkl')
         else:
             self.get_parsed_source(input_file=input_file,
-                                   output_file='ast.csv')
+                                   output_file='ast.pkl')
         print('read id pairs...')
         if self.language == 'c':
             self.read_pairs('oj_clone_ids.csv')

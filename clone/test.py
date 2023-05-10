@@ -1,3 +1,5 @@
+from ast import literal_eval
+
 import pandas as pd
 import torch
 import numpy as np
@@ -55,7 +57,7 @@ def get_trues_count(arr):
 if __name__ == '__main__':
     import argparse
 
-    parser = argparse.ArgumentParser(description="Choose a dataset:[c|java]")
+    parser = argparse.ArgumentParser(description="Choose a dataset:[c|java|javamut]")
     parser.add_argument('--lang')
     args = parser.parse_args()
     if not args.lang:
@@ -67,8 +69,12 @@ if __name__ == '__main__':
     if lang == 'java':
         categories = 5
     print("Test for ", str.upper(lang))
-    test_data = pd.read_csv(root + lang + '/test/blocks_and_metrics.csv').sample(frac=1)
+    test_data = pd.read_csv(root + lang + '/test/blocks_and_metrics.csv', converters={
+        "code_x": literal_eval, "code_y": literal_eval, "metrics_x": literal_eval, "metrics_y": literal_eval
+    }).sample(frac=1)
     METRICS_DIM = 44
+    if lang == 'javamut':
+        METRICS_DIM = 58
     # if lang == 'java':
     #     for atd_i in range(0, len(test_data['code_x'])-1):
     #         if isinstance(test_data['code_x'][atd_i], float):
@@ -161,12 +167,14 @@ if __name__ == '__main__':
             metrics_total_loss += metrics_loss.item() * len(test_labels)
 
 
-        plot.plot_confusion_matrix(ast_predicts, trues, 'c_ast_confusion_matrix')
-        plot.plot_confusion_matrix(metrics_predicts, trues, 'c_metrics_confusion_matrix')
+        plot.plot_confusion_matrix(ast_predicts, trues, 'javamut_ast_confusion_matrix')
+        plot.plot_confusion_matrix(metrics_predicts, trues, 'javamut_metrics_confusion_matrix')
         predicts_and = combined_model.combine_and(ast_predicts, metrics_predicts)
         predicts_or = combined_model.combine_or(ast_predicts, metrics_predicts)
-        plot.plot_confusion_matrix(predicts_and, trues, 'c_combined_and_confusion_matrix')
-        plot.plot_confusion_matrix(predicts_or, trues, 'c_combined_or_confusion_matrix')
+        predicts_or_05_015 = combined_model.combine_or_prob(ast_predicts_probability, metrics_predicts_probability, 0.5, 0.15)
+        plot.plot_confusion_matrix(predicts_and, trues, 'javamut_combined_and_confusion_matrix')
+        plot.plot_confusion_matrix(predicts_or, trues, 'javamut_combined_or_confusion_matrix')
+        plot.plot_confusion_matrix(predicts_or_05_015, trues, 'javamut_combined_or_05_015_confusion_matrix')
 
         ast_cm = confusion_matrix(np.array(ast_predicts), np.array(trues))
         print('ast confusion matrix', ast_cm)
@@ -186,8 +194,8 @@ if __name__ == '__main__':
             true_negatives.append(cm[0][0])
             predicts_or_cms.append(cm)
         print('all confusiom matrices', predicts_or_cms)
-        plot.plot_unit_graph_2(thresholds, false_positives, false_negatives, 'Klaidinga tiesa', 'Nerasta tiesa', 'Riba', 'Vienetų kiekis', 'Vienetų skaičius keičiantis metrikų modelio ribai', 'c_absolute_unit_graph')
-        plot.plot_unit_graph_2(thresholds, [x/ast_cm[0][0] for x in false_positives], [x/ast_cm[0][1] for x in false_negatives], 'Klaidinga tiesa', 'Nerasta tiesa', 'Riba', 'Vienetų dalis', 'Vienetų dalis keičiantis metrikų modelio ribai', 'c_relative_unit_graph')
+        plot.plot_unit_graph_2(thresholds, false_positives, false_negatives, 'Klaidinga tiesa', 'Nerasta tiesa', 'Riba', 'Vienetų kiekis', 'Vienetų skaičius keičiantis metrikų modelio ribai', 'javamut_absolute_unit_graph')
+        plot.plot_unit_graph_2(thresholds, [x/ast_cm[0][0] for x in false_positives], [x/ast_cm[0][1] for x in false_negatives], 'Klaidinga tiesa', 'Nerasta tiesa', 'Riba', 'Vienetų dalis', 'Vienetų dalis keičiantis metrikų modelio ribai', 'javamut_relative_unit_graph')
 
         if lang == 'java':
             weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]

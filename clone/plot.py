@@ -91,6 +91,16 @@ def plot_read_stats(filename='plot_training_acc_stats'):
     plt.legend()
     plt.show()
 
+def plot_read_stats1(filename='plot_training_acc_stats'):
+    vector1 = read_from_csv(filename)['v1']
+    epochs = len(vector1)
+    plt.plot(range(epochs), vector1, label='Modelio mokymo praradimo funkcija')
+    plt.xlabel('Epocha')
+    plt.ylabel('Praradimo funkcija')
+    plt.title('Modelio mokymo praradimo funkcijos raida')
+    plt.legend()
+    plt.show()
+
 
 def plot_unit_graph(xdata, vector, label, xlabel, ylabel, title, filename='plot_unit_graph'):
     save_to_csv({'x': xdata, 'v1': vector}, filename)

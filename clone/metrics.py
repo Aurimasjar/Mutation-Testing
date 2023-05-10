@@ -1,9 +1,13 @@
+import re
+
 import pandas as pd
 from torch import tensor
 
 import prepare_data_java
 from prepare_data_c import get_sequences
 from prepare_data_java import get_sequence
+
+
 # from . import prepare_data_java
 # from .prepare_data_c import get_sequences
 # from .prepare_data_java import get_sequence
@@ -127,6 +131,7 @@ def calculate_old_c_metrics(ast):
             malloc_count, calloc_count, realloc_count, free_count,
             leaf_count, node_count, max_depth]
 
+
 # calculate 44 metrics for c code
 def calculate_c_metrics(ast):
     sequence = []
@@ -191,6 +196,7 @@ def calculate_c_metrics(ast):
             addr_count, unary_op_count, binary_op_count, ternary_op_count, increment_count, decrement_count,
             leaf_count, node_count, max_depth]
 
+
 # calculate 21 metrics for c code
 def calculate_c_metrics_2(ast):
     sequence = []
@@ -227,7 +233,6 @@ def calculate_c_metrics_2(ast):
             char_string_count, int_count, float_count,
             all_assignment_count, comparison_count, boolean_op_count, arithmetic_op_count,
             leaf_count, node_count, max_depth]
-
 
 
 def get_node_count_c(node):
@@ -273,7 +278,8 @@ def calculate_java_metrics(ast):
 
     member_ref_count = get_count(sequence, ['MemberReference'])
     ref_type_count = get_count(sequence, ['ReferenceType'])
-    list_count = get_count(sequence, ['Collection', 'Queue', 'Deque', 'AbstractSequentialList', 'LinkedList', 'List', 'AbstractList', 'ArrayList', 'NodeList', 'Vector'])
+    list_count = get_count(sequence, ['Collection', 'Queue', 'Deque', 'AbstractSequentialList', 'LinkedList', 'List',
+                                      'AbstractList', 'ArrayList', 'NodeList', 'Vector'])
     literal_count = get_count(sequence, ['Literal'])
     null_count = get_count(sequence, ['null'])
     block_count = get_count(sequence, ['BlockStatement'])
@@ -323,6 +329,113 @@ def calculate_java_metrics(ast):
             addr_count, binary_op_count, ternary_op_count, increment_count, decrement_count,
             leaf_count, node_count, max_depth]
 
+
+def calculate_java_mut_metrics(ast):
+    # print('calculate_java_mut_metrics', ast)
+    sequence = []
+    get_sequence(ast, sequence)
+    # print('calculate_java_mut_metrics sequence', sequence)
+    if_count = get_count(sequence, ['IfStatement'])
+    for_count = get_count(sequence, ['ForStatement'])
+    while_count = get_count(sequence, ['WhileStatement'])
+    break_count = get_count(sequence, ['BreakStatement'])
+    continue_count = get_count(sequence, ['ContinueStatement'])
+
+    method_inv_count = get_count(sequence, ['MethodInvocation'])
+    return_count = get_count(sequence, ['ReturnStatement'])
+    cast_count = get_count(sequence, ['Cast'])
+    variable_decl_count = get_count(sequence, ['VariableDeclarator'])
+    local_variable_decl_count = get_count(sequence, ['LocalVariableDeclaration'])
+
+    member_ref_count = get_count(sequence, ['MemberReference'])
+    ref_type_count = get_count(sequence, ['ReferenceType'])
+    literal_count = get_count(sequence, ['Literal'])
+    arr_count = get_count(sequence, ['ArraySelector'])
+    block_count = get_count(sequence, ['BlockStatement'])
+    end_count = get_count(sequence, ['End'])
+
+    null_count = get_count(sequence, ['null'])
+    true_count = get_count(sequence, ['true'])
+    false_count = get_count(sequence, ['false'])
+
+    basic_type_count = get_count(sequence, ['BasicType'])
+    char_count = get_count(sequence, ['char'])
+    string_count = get_count(sequence, ['String'])
+    int_count = get_count(sequence, ['int'])
+    long_count = get_count(sequence, ['long'])
+    double_count = get_count(sequence, ['double'])
+    bool_count = get_count(sequence, ['boolean'])
+
+    assignment_count = get_count(sequence, ['='])
+    sum_assignment_count = get_count(sequence, ['+='])
+    min_assignment_count = get_count(sequence, ['-='])
+    mul_assignment_count = get_count(sequence, ['*='])
+    div_assignment_count = get_count(sequence, ['/='])
+
+    is_lower_count = get_count(sequence, ['<'])
+    is_upper_count = get_count(sequence, ['>'])
+    is_lower_or_equal_count = get_count(sequence, ['<='])
+    is_upper_or_equal_count = get_count(sequence, ['>='])
+    is_equal_count = get_count(sequence, ['=='])
+    is_not_equal_count = get_count(sequence, ['!='])
+    and_count = get_count(sequence, ['&&'])
+    or_count = get_count(sequence, ['||'])
+    not_count = get_count(sequence, ['!'])
+
+    bitwise_not_count = get_count(sequence, ['~'])
+    bitwise_and_count = get_count(sequence, ['&'])
+    bitwise_or_count = get_count(sequence, ['|'])
+    bitwise_xor_count = get_count(sequence, ['^'])
+
+    plus_count = get_count(sequence, ['+'])
+    minus_count = get_count(sequence, ['-'])
+    mul_count = get_count(sequence, ['*'])
+    div_count = get_count(sequence, ['/'])
+    rem_count = get_count(sequence, ['%'])
+    binary_op_count = get_count(sequence, 'BinaryOperation')
+    ternary_op_count = get_count(sequence, 'TernaryExpression')
+    increment_count = get_count(sequence, ['++'])
+    decrement_count = get_count(sequence, ['--'])
+
+    prefix_count = get_prefix_operator_count_java(ast)
+    postfix_count = get_postfix_operator_count_java(ast)
+
+    leaf_count = get_leaf_count_java(ast)
+    node_count = get_node_count_java(ast)
+    max_depth = get_max_depth_java(ast)
+
+    return [if_count, for_count, while_count, break_count, continue_count,
+            method_inv_count, return_count, cast_count, variable_decl_count, local_variable_decl_count,
+            member_ref_count, ref_type_count, literal_count, arr_count, block_count, end_count,
+            null_count, true_count, false_count, min_assignment_count, mul_assignment_count, div_assignment_count,
+            basic_type_count, char_count, string_count, int_count, long_count, double_count, bool_count,
+            assignment_count, sum_assignment_count,
+            is_lower_count, is_upper_count, is_lower_or_equal_count, is_upper_or_equal_count,
+            is_equal_count, is_not_equal_count, and_count, or_count, not_count,
+            bitwise_not_count, bitwise_and_count, bitwise_or_count, bitwise_xor_count,
+            plus_count, minus_count, mul_count, div_count, rem_count,
+            binary_op_count, ternary_op_count, increment_count, decrement_count,
+            prefix_count, postfix_count, leaf_count, node_count, max_depth]
+
+
+def get_prefix_operator_count_java(ast):
+    count = 0
+    ast = str(ast)
+    positions = [m.start() for m in re.finditer('prefix_operators', ast)]
+    for pos1 in positions:
+        pos2 = ast.find(']', pos1)
+        count += ast[pos1:pos2+1].count("'") // 2
+    return count
+
+
+def get_postfix_operator_count_java(ast):
+    count = 0
+    ast = str(ast)
+    positions = [m.start() for m in re.finditer('postfix_operators', ast)]
+    for pos1 in positions:
+        pos2 = ast.find(']', pos1)
+        count += ast[pos1:pos2+1].count("'") // 2
+    return count
 
 def get_node_count_java(node):
     node_count = 0

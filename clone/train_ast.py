@@ -29,7 +29,7 @@ def get_batch(dataset, idx, bs):
 if __name__ == '__main__':
     import argparse
 
-    parser = argparse.ArgumentParser(description="Choose a dataset:[c|java]")
+    parser = argparse.ArgumentParser(description="Choose a dataset:[c|java|javamut]")
     parser.add_argument('--lang')
     args = parser.parse_args()
     if not args.lang:
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     embeddings = np.zeros((MAX_TOKENS + 1, EMBEDDING_DIM), dtype="float32")
     embeddings[:word2vec.vectors.shape[0]] = word2vec.vectors
 
-    EPOCHS = 1
+    EPOCHS = 150
     BATCH_SIZE = 32
     USE_GPU = False
     THRESHOLD = 0.5
@@ -99,7 +99,7 @@ if __name__ == '__main__':
             total = 0.0
             i = 0
             while i < len(train_data_t):
-                print('train', i, ' / ', len(train_data_t))
+                # print('train', i, ' / ', len(train_data_t))
                 batch = get_batch(train_data_t, i, BATCH_SIZE)
                 i += BATCH_SIZE
                 train1_inputs, train2_inputs, train_labels = batch
@@ -132,8 +132,8 @@ if __name__ == '__main__':
         torch.save(model.state_dict(), model_filepath)
         print('train_loss_data', train_loss_data)
         print('train_acc_data', train_acc_data)
-        plot.plot_training_loss_wv_stats(train_loss_data, 'java_ast_loss_function')
-        plot.plot_training_acc_wv_stats(train_acc_data, 'java_ast_acc_function')
+        plot.plot_training_loss_wv_stats(train_loss_data, 'javamut_ast_loss_function')
+        plot.plot_training_acc_wv_stats(train_acc_data, 'javamut_ast_acc_function')
 
         print("Testing-%d..."%t)
         # testing procedure
@@ -163,7 +163,7 @@ if __name__ == '__main__':
             total += len(test_labels)
             total_loss += loss.item() * len(test_labels)
 
-        plot.plot_confusion_matrix(predicts, trues, 'java_ast_confusion_matrix')
+        plot.plot_confusion_matrix(predicts, trues, 'javamut_ast_confusion_matrix')
         if lang == 'java':
             weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]
             p, r, f, _ = precision_recall_fscore_support(trues, predicts, average='binary')

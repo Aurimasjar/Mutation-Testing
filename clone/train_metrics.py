@@ -27,7 +27,7 @@ def get_batch(dataset, idx, bs):
 if __name__ == '__main__':
     import argparse
 
-    parser = argparse.ArgumentParser(description="Choose a dataset:[c|java]")
+    parser = argparse.ArgumentParser(description="Choose a dataset:[c|java|javamut]")
     parser.add_argument('--lang')
     args = parser.parse_args()
     if not args.lang:
@@ -46,11 +46,14 @@ if __name__ == '__main__':
     test_data = pd.read_csv(root + lang + '/test/blocks_and_metrics.csv',
         converters={"metrics_x": literal_eval, "metrics_y": literal_eval}).sample(frac=1)
     METRICS_DIM = 44
-    for atd_i in range(0, len(test_data['metrics_x'])-1):
-        if isinstance(test_data['metrics_x'][atd_i], float):
-            test_data['metrics_x'][atd_i] = [0] * METRICS_DIM
+    if lang == 'javamut':
+        METRICS_DIM = 58
+    elif lang == 'java':
+        for atd_i in range(0, len(test_data['metrics_x'])-1):
+            if isinstance(test_data['metrics_x'][atd_i], float):
+                test_data['metrics_x'][atd_i] = [0] * METRICS_DIM
 
-    EPOCHS = 5
+    EPOCHS = 500
     BATCH_SIZE = 32
     USE_GPU = False
     THRESHOLD = 0.5
@@ -116,7 +119,7 @@ if __name__ == '__main__':
             i = 0
             model.train()
             while i < len(train_data_t):
-                print('train', i, ' / ', len(train_data_t))
+                # print('train', i, ' / ', len(train_data_t))
                 batch = get_batch(train_data_t, i, BATCH_SIZE)
                 i += BATCH_SIZE
                 train1_inputs, train2_inputs, train_labels = batch
@@ -176,8 +179,8 @@ if __name__ == '__main__':
             plot.plot_training_loss_stats(train_loss_data, valid_loss_data, 'java_metrics_loss_function')
             plot.plot_training_acc_stats(train_acc_data, valid_acc_data, 'java_metrics_acc_function')
         else:
-            plot.plot_training_loss_wv_stats(train_loss_data, 'java_metrics_loss_function')
-            plot.plot_training_acc_wv_stats(train_acc_data, 'java_metrics_acc_function')
+            plot.plot_training_loss_wv_stats(train_loss_data, 'javamut_metrics_loss_function')
+            plot.plot_training_acc_wv_stats(train_acc_data, 'javamut_metrics_acc_function')
 
         print("Testing-%d..." % t)
         # testing procedure
@@ -205,7 +208,7 @@ if __name__ == '__main__':
             total += len(test_labels)
             total_loss += loss.item() * len(test_labels)
 
-        plot.plot_confusion_matrix(predicts, trues, 'java_metrics_tv_80_confusion_matrix')
+        plot.plot_confusion_matrix(predicts, trues, 'javamut_metrics_confusion_matrix')
         if lang == 'java':
             weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]
             p, r, f, _ = precision_recall_fscore_support(trues, predicts, average='binary')
