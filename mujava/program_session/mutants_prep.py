@@ -3,7 +3,7 @@ import re
 import subprocess
 
 initial_mujava_path = 'mujava/result/Algorithm/'
-absolute_path = 'C:/Users/a.petretis/PycharmProjects/Mutation-Testing'
+absolute_path = '/'
 
 
 def fix_package_structure():

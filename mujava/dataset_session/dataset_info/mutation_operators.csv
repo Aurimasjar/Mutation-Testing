@@ -1,0 +1,21 @@
+Mutation operator;Apra’ymas;Mutant count;Successfully tested mutant count
+AORB;Short-cut Arithmetic Operator Replacement;736;732
+AORS;Binary Arithmetic Operator Replacement;150;149
+AOIU;Unary Arithmetic Operator Insertion;856;850
+AOIS;Short-Cut Arithmetic Operator Insertion;3440;3398
+AODU;Unary Arithmetic Operator Deletion;19;17
+AODS;Short-cut Arithmetic Operator Deletion;0;0
+ROR;Relational Operator Replacement;1466;1404
+COR;Binary Conditional Operator Replacement;84;82
+COI;Unary Conditional Operator Insertion;291;289
+COD;Unary Conditional Operator Deletion;12;12
+SOR;Shift Operator Replacement;0;0
+LOR;Binary Logical Operator Replacement;0;0
+LOI;Unary Logical Operator Insertion;1154;1119
+LOD;Unary Logical Operator Deletion;0;0
+ASRS;Assignment Operator Replacement;56;53
+SDL;Statement DeLetion;766;611
+VDL;Variable DeLetion;367;356
+CDL;Constant DeLetion;129;129
+ODL;Operator DeLetion;501;491
+;;10027;9692
