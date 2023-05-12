@@ -61,7 +61,6 @@ class Pipeline:
                 parser = c_parser.CParser()
                 source = pd.read_csv(input_path)
                 source.columns = ['id', 'code', 'label']
-                source['code'] = []
                 source['code'] = source['code'].progress_apply(parser.parse)
                 source.to_csv('ast.csv')
                 source.to_pickle(output_path)
