@@ -5,8 +5,8 @@ import re
 import sys
 from gensim.models.word2vec import Word2Vec
 import pickle
-from tree import ASTNode, SingleNode
-# from .tree import ASTNode, SingleNode
+# from tree import ASTNode, SingleNode
+from .tree import ASTNode, SingleNode
 import numpy as np
 
 

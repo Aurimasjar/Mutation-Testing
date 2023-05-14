@@ -1,8 +1,8 @@
 import pandas as pd
 import javalang
 from javalang.ast import Node
-from tree import ASTNode, BlockNode
-# from .tree import ASTNode, BlockNode
+# from tree import ASTNode, BlockNode
+from .tree import ASTNode, BlockNode
 import sys
 sys.setrecursionlimit(10000)
 

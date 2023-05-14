@@ -62,7 +62,7 @@ class Pipeline:
                 source = pd.read_csv(input_path)
                 source.columns = ['id', 'code', 'label']
                 source['code'] = source['code'].progress_apply(parser.parse)
-                source.to_csv('ast.csv')
+                source.to_csv(os.path.join(self.root, self.language, 'ast.csv'))
                 source.to_pickle(output_path)
             else:
                 import javalang
@@ -80,7 +80,7 @@ class Pipeline:
                 source.columns = ['id', 'code']
                 source['source_code'] = source['code']
                 source['code'] = source['code'].progress_apply(parse_program)
-                source.to_csv('ast.csv')
+                source.to_csv(os.path.join(self.root, self.language, 'ast.csv'))
                 source.to_pickle(output_path)
         self.sources = source
         return source

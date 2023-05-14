@@ -10,15 +10,19 @@ absolute_path = 'C:/Users/a.petretis/PycharmProjects/Mutation-Testing'
 def fix_package_structure():
     # set package names for original code
     original_code_path = initial_mujava_path + 'original/Algorithm.java'
-    set_package(original_code_path)  # or rewrite package if source codes includes package keyword
+    structure_already_fixed = set_package(original_code_path)  # or rewrite package if source codes includes package keyword
+    if structure_already_fixed:
+        return
     compile_java(original_code_path)
 
     # rename directories to have valid package names
     method_list = [d for d in next(os.walk(initial_mujava_path + 'traditional_mutants'))[1]]
     for method in method_list:
         updated_method = re.sub('[(),]', '_', method)
-        source = 'traditional_mutants/' + method
-        destination = 'traditional_mutants/' + updated_method
+        # source = absolute_path + '/' + initial_mujava_path + 'traditional_mutants/' + method
+        # destination = absolute_path + '/' + initial_mujava_path + 'traditional_mutants/' + updated_method
+        source = initial_mujava_path + 'traditional_mutants/' + method
+        destination = initial_mujava_path + 'traditional_mutants/' + updated_method
         os.rename(source, destination)
 
     # set package names for mutants
@@ -35,6 +39,8 @@ def set_package(code_path):
     package_name = '.'.join(code_path.split('/')[:-1])
     with open(code_path, 'r', encoding='utf-8') as file:
         code = file.readlines()
+    if 'package' in code[0]:
+        return True
     code.insert(0, 'package ' + package_name + ';\n\n')
     with open(code_path, 'w', encoding='utf-8') as file:
         file.writelines(code)
@@ -57,6 +63,3 @@ def compile_java(java_file):
 
     cmd = 'javac ' + java_file
     proc = subprocess.Popen(cmd, shell=True, env=env)
-
-
-fix_package_structure()

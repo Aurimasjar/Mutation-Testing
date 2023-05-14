@@ -15,12 +15,18 @@ class TestCase:
         else:
             self.input = test_case[:-1]
             self.output = test_case[-1]
+            self.element_sizes = [len(x) if isinstance(x, list) else 1 for x in test_case]
+            self.all_element_count = sum(self.element_sizes)
             self.bit_input = None
 
     def convert_to_bits(self):
         # print('convert_to_bits')
         param_bits = []
         for param in self.input:
+            # if isinstance(param, list):
+            #     for param_elem in param:
+            #         param_bits.append("{0:b}".format(param_elem).zfill(self.bit_size))
+            # else:
             param_bits.append("{0:b}".format(param).zfill(self.bit_size))
         self.bit_input = ''.join(param_bits)
 
@@ -31,9 +37,8 @@ class TestCase:
 
     def recalculate_output(self, method_name):
         # print('recalculate_output')
-        Algorithm = jpype.JClass('mujava.result.Algorithm.original.Algorithm')
+        Algorithm = jpype.JClass('mujava.program_session.result.Algorithm.original.Algorithm')
         alg = Algorithm()
-        print('*self.input', *self.input)
         self.output = getattr(alg, method_name)(*self.input)
 
     def print_test_case(self):
