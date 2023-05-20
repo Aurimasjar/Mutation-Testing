@@ -187,7 +187,6 @@ def form_method_signature(return_type, method_name, method_params):
 
 def evaluate_mutation_score(method_name, mutants, test_set, print_table=False):
     # print('evaluate_mutation_score')
-    considered_non_eq_mutants_length = len(list(filter(lambda m: not m.is_equivalent or m.is_killed, mutants)))
     # print('(length of mutant list, marked equivalent mutants length)', len(mutants), considered_non_eq_mutants_length)
     inverted_mutation_table = []
     marked_eq_mutants = ['E' if m.is_equivalent else ' ' for m in mutants]
@@ -210,6 +209,7 @@ def evaluate_mutation_score(method_name, mutants, test_set, print_table=False):
         test_case.mutant_proportion = mutation_table[i].count(False) / len(mutation_table[i])
 
     count_score = [all(col) for col in inverted_mutation_table].count(False)
+    considered_non_eq_mutants_length = len(list(filter(lambda m: not m.is_equivalent or m.is_killed, mutants)))
     if print_table:
         print_mutation_table(mutation_table, test_set, marked_eq_mutants, marked_killed_mutants)
         print('all score', count_score, '/', len(mutants))
