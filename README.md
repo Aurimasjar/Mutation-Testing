@@ -19,3 +19,7 @@ Both methods have additional parameters:
 Test sets are loaded from `test_sets` folder.
 Otherwise, if parameter `set_initial_data` is `False` a random test set is generated.
 * Set parameter `mark_eq_mutants` to `True` if the equivalent mutant detection models should be called to mark mutants.
+
+### Output
+
+All graphs and it's data generated while running genetic algorithm are stored in `images` folder
