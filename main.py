@@ -1,24 +1,17 @@
 import ast
 import random
-import sys
-from ast import literal_eval
 import os
 import threading
-from itertools import islice
 from pathlib import Path
 import jpype
-import numpy as np
-from jpype import java
 
 import pathlib
 
-import javalang
 import pandas as pd
 
 import mutants_prep
 import plot
 from clone.eval import evaluate
-from constants import absolute_path
 from genetic_algorithm import mutate, crossover, generate_bit_input
 from mutant import Mutant
 from test_case import TestCase
@@ -26,65 +19,46 @@ from test_case import TestCase
 
 def print_mutant_list(mutants):
     print('length of mutant list', len(mutants))
-    # for i in range(0, len(mutants)):
-    #     print('mutant', i, mutants[i].filename, mutants[i].method, mutants[i].operator)
+    for i in range(0, len(mutants)):
+        print('mutant', i, mutants[i].filename, mutants[i].method, mutants[i].operator)
 
 
-def apply_mutation_testing(return_type, method_name, method_params):
-    print('apply_mutation_testing')
-
-    test_set_data = pd.read_csv(
-        'test_sets/' + form_method_signature(return_type, method_name, method_params) + 'test_set.csv'
-    )
-    # print('test set data')
-    # print(test_set_data)
-    test_set = []
-    for test_case in test_set_data.values:
-        for i in range(0, len(test_case)):
-            if isinstance(test_case[i], str):
-                test_case[i] = ast.literal_eval(test_case[i])
-        test_set.append(TestCase(test_case, 8))
-
-    mutants = get_mutants(method_name)
-    mutants = list(
-        filter(lambda m: m.method == form_method_signature(return_type, method_name, method_params), mutants))
-    # print_mutant_list(mutants)
-    verify_initial_test_set(method_name, test_set)
-    scores = [evaluate_mutation_score(method_name, mutants, test_set)]
-
-    mutants = mark_equivalent_mutants(method_name, mutants)
-    print_mutant_list(mutants)
-    if len(mutants) == 0:
-        print('All mutants were killed... Stopping mutation testing process...')
-        exit()
-
-    scores.append(evaluate_mutation_score(method_name, mutants, test_set))
-    print('scores', scores)
-
-
-def apply_mutation_testing_with_test_data_generation(return_type, method_name, method_params, set_initial_data=False):
-    print('apply_mutation_testing_with_test_data_generation...')
-    test_set = []
+def apply_mutation_testing(return_type, method_name, method_params, set_initial_data=False, mark_eq_mutants=False):
+    print('apply_mutation_testing...')
     if set_initial_data:
-        test_set_data = pd.read_csv(
-            'test_sets/' + form_method_signature(return_type, method_name, method_params) + 'test_set.csv'
-        )
-        for test_case in test_set_data.values:
-            for i in range(0, len(test_case)):
-                if isinstance(test_case[i], str):
-                    test_case[i] = ast.literal_eval(test_case[i])
-            test_set.append(TestCase(test_case, 8))
+        test_set = load_test_set(form_method_signature(return_type, method_name, method_params))
     else:
         test_set = generate_initial_test_cases(method_params, method_name, 3)
 
     mutants = get_mutants(method_name)
     mutants = list(
         filter(lambda m: m.method == form_method_signature(return_type, method_name, method_params), mutants))
-    # print_mutant_list(mutants)
     verify_initial_test_set(method_name, test_set)
     print('initial test set verified')
-    mutants = mark_equivalent_mutants(method_name, mutants)
-    print_mutant_list(mutants)
+    if mark_eq_mutants:
+        mutants = mark_equivalent_mutants(method_name, mutants)
+    if len(mutants) == 0:
+        print('All mutants were killed... Stopping mutation testing process...')
+        exit()
+
+    all_score, non_eq_score, non_eq_mutants_ratio = evaluate_mutation_score(method_name, mutants, test_set, True)
+    print('scores', all_score, non_eq_score, non_eq_mutants_ratio)
+
+
+def apply_mutation_testing_with_ga_test_data_generation(return_type, method_name, method_params, set_initial_data=False, mark_eq_mutants=False):
+    print('apply_mutation_testing_with_ga_test_data_generation...')
+    if set_initial_data:
+        test_set = load_test_set(form_method_signature(return_type, method_name, method_params))
+    else:
+        test_set = generate_initial_test_cases(method_params, method_name, 3)
+
+    mutants = get_mutants(method_name)
+    mutants = list(
+        filter(lambda m: m.method == form_method_signature(return_type, method_name, method_params), mutants))
+    verify_initial_test_set(method_name, test_set)
+    print('initial test set verified')
+    if mark_eq_mutants:
+        mutants = mark_equivalent_mutants(method_name, mutants)
     if len(mutants) == 0:
         print('All mutants were killed... Stopping mutation testing process...')
         exit()
@@ -106,12 +80,26 @@ def apply_mutation_testing_with_test_data_generation(return_type, method_name, m
         all_scores.append(all_score)
         non_eq_scores.append(non_eq_score)
         non_eq_mutants_ratios.append(non_eq_mutants_ratio)
-    # print('scores', all_scores, non_eq_scores, non_eq_mutants_ratio)
+
     # print score graph
     if set_initial_data:
-        plot.plot_mutation_score_ga(all_scores, non_eq_scores, non_eq_mutants_ratios, 'plot_triangle_ga_with_initial_test_set')
+        plot.plot_mutation_score_ga(all_scores, non_eq_scores, non_eq_mutants_ratios,
+                                    'plot_example_triangle_ga_with_initial_test_set')
     else:
-        plot.plot_mutation_score_ga(all_scores, non_eq_scores, non_eq_mutants_ratios, 'plot_triangle_ga_with_random_test_set')
+        plot.plot_mutation_score_ga(all_scores, non_eq_scores, non_eq_mutants_ratios,
+                                    'plot_example_triangle_ga_with_random_test_set')
+
+
+def load_test_set(full_method_name):
+    test_set = []
+    path = 'test_sets/' + full_method_name + 'test_set.csv'
+    test_set_data = pd.read_csv(path)
+    for test_case in test_set_data.values:
+        for i in range(0, len(test_case)):
+            if isinstance(test_case[i], str):
+                test_case[i] = ast.literal_eval(test_case[i])
+        test_set.append(TestCase(test_case, 8))
+    return test_set
 
 def generate_initial_test_cases(method_params, method_name, num_of_test_cases):
     test_set = []
@@ -186,8 +174,6 @@ def form_method_signature(return_type, method_name, method_params):
 
 
 def evaluate_mutation_score(method_name, mutants, test_set, print_table=False):
-    # print('evaluate_mutation_score')
-    # print('(length of mutant list, marked equivalent mutants length)', len(mutants), considered_non_eq_mutants_length)
     inverted_mutation_table = []
     marked_eq_mutants = ['E' if m.is_equivalent else ' ' for m in mutants]
     marked_killed_mutants = ['K' if m.is_killed else ' ' for m in mutants]
@@ -212,8 +198,6 @@ def evaluate_mutation_score(method_name, mutants, test_set, print_table=False):
     considered_non_eq_mutants_length = len(list(filter(lambda m: not m.is_equivalent or m.is_killed, mutants)))
     if print_table:
         print_mutation_table(mutation_table, test_set, marked_eq_mutants, marked_killed_mutants)
-        print('all score', count_score, '/', len(mutants))
-        print('non eq score', count_score, '/', considered_non_eq_mutants_length)
     score = count_score / len(mutants)
     non_eq_score = count_score / considered_non_eq_mutants_length
     non_eq_mutants_ratio = considered_non_eq_mutants_length / len(mutants)
@@ -315,9 +299,13 @@ def main():
 
     os.environ['JAVA_HOME'] = 'C:/Program Files/Java/jdk1.8.0_351/bin'
     jpype.startJVM(jpype.getDefaultJVMPath())
-    apply_mutation_testing_with_test_data_generation('boolean', 'triangle', ['int', 'int', 'int'],
-                                                     set_initial_data=True)
-    apply_mutation_testing_with_test_data_generation('boolean', 'triangle', ['int', 'int', 'int'])
+    apply_mutation_testing('boolean', 'triangle', ['int', 'int', 'int'],
+                                                     set_initial_data=True, mark_eq_mutants=False)
+    apply_mutation_testing('boolean', 'triangle', ['int', 'int', 'int'], set_initial_data=False, mark_eq_mutants=False)
+    apply_mutation_testing_with_ga_test_data_generation('boolean', 'triangle', ['int', 'int', 'int'],
+                                                     set_initial_data=False, mark_eq_mutants=False)
+    apply_mutation_testing_with_ga_test_data_generation('boolean', 'triangle', ['int', 'int', 'int'],
+                                                     set_initial_data=True, mark_eq_mutants=False)
     jpype.shutdownJVM()
     print('main finished')
 

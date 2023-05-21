@@ -1,19 +1,21 @@
-### Code Clone Detection
+# Project Structure
 
- 1. `cd clone`
- 2. run `python pipeline.py --lang c` or `python pipeline.py --lang java` to generate preprocessed data for the two datasets.
- 3. run `python train.py --lang c` to train on OJClone, `python train.py --lang java` on BigCLoneBench respectively.
- 4. run `python test.py --lang c` to test model results on OJClone, `python test.py --lang java` on BigCLoneBench respectively.
+1. Mutation testing prototype is implemented in the root folder.
+2. Code clone detection and equivalent mutant detection models are implemented in the `clone` folder.
+Refer to the `clone/README.md` for more info. 
+3. Code designed for work with Mujava tool is implemented in the  `mujava` folder.
+Refer to the `mujava/README.md` for more info.
 
-### Metrics description
+### Mutation Testing Prototype
 
-All metrics used in research are described in `clone/metrics.py` file.
- 1. In method calculate_old_c_metrics are presented metrics from the first version used for c language metrics model.
- 2. In method calculate_c_metrics_2 are presented metrics from the second version used for c language metrics model.
- 3. In method calculate_c_metrics are presented metrics from the third and final version used for c language metrics model.
- 4. In method calculate_java_metrics are presented metrics for java language metrics model.
+Mutation testing prototype is implemented in `main.py` file. 
+Triangle inequality program is prepared as an example program.
+* To calculate mutation score for selected method and initial test set call function `apply_mutation_testing`
+* To calculate mutation scores for selected method, initial test set and new generated test sets 
+using a genetic algorithm call function `apply_mutation_testing_with_ga_test_data_generation`
 
-
-### How to use it on your own dataset
-
-Please refer to the `pkl` file in the corresponding directory. This file can be loaded by `pandas`.
+Both methods have additional parameters:
+* Set parameter `set_initial_data` to `True` if the test set should be loaded from a file. 
+Test sets are loaded from `test_sets` folder.
+Otherwise, if parameter `set_initial_data` is `False` a random test set is generated.
+* Set parameter `mark_eq_mutants` to `True` if the equivalent mutant detection models should be called to mark mutants.
