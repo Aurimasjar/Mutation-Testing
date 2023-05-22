@@ -20,6 +20,12 @@ Test sets are loaded from `test_sets` folder.
 Otherwise, if parameter `set_initial_data` is `False` a random test set is generated.
 * Set parameter `mark_eq_mutants` to `True` if the equivalent mutant detection models should be called to mark mutants.
 
+### Java environment
+
+For running java code `Jpype1` library is used.
+Java 1.8 version is used to run java code. 
+JVM is used to run mutants with initial and newly generated test codes to perform mutation testing.
+
 ### Output
 
 All graphs and it's data generated while running genetic algorithm are stored in `images` folder

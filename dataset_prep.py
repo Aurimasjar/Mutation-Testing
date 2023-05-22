@@ -1,8 +1,5 @@
-import os
 import pathlib
-import re
 
-import numpy as np
 import pandas as pd
 
 from OriginalMethod import OriginalMethod
@@ -25,7 +22,6 @@ def get_mutants(original_methods):
         method = pathlib.PurePath(p).parent.parent.name
         operator = pathlib.PurePath(p).parent.name
         method_code = get_method_code(p.read_text(), method)
-        # method_original_code = get_method_code(original_code, method)  # todo optimize to parse methods in advance
         mutants.append(Mutant(p.name, method, operator, method_code))
     return mutants
 
@@ -42,6 +38,7 @@ def get_original_methods():
     return original_methods
 
 
+# Extract method code from code wrapped by class
 def get_method_code(code, method):
     method_name = ' ' + method.split('(')[0].split('_')[1] + '('
     # method_name = method_name.replace('_', ' ')
@@ -49,7 +46,7 @@ def get_method_code(code, method):
     pos1 = [idx for idx, s in enumerate(code_line_list) if method_name in s][0]
     pos2 = get_method_end_position(code_line_list, pos1)
     assert pos2 != -1
-    return '\n'.join(code_line_list[pos1:pos2+1])
+    return '\n'.join(code_line_list[pos1:pos2 + 1])
 
 
 def get_method_end_position(code_line_list, pos1):
@@ -66,8 +63,9 @@ def get_method_end_position(code_line_list, pos1):
     return -1
 
 
-# classify mutants using data from file, generated with mujava tool
-# in the source file it must be ensured that all methods passed written tests, otherwise mutant test results are not reliable
+# Classify mutants using data from file, generated with mujava tool.
+# In the source file it must be ensured that all methods passed written tests.
+# Otherwise, mutant test results are not reliable.
 def get_mutant_classification_map():
     mutant_map = {}
     fp = open('./mujava/' + session_path + '/' + test_file, 'r')
@@ -91,7 +89,7 @@ def get_mutant_classification_map():
 
 def classify_mutants(mutants):
     mutant_map = get_mutant_classification_map()
-    mutants = list(filter(lambda m : m.operator in mutant_map, mutants))
+    mutants = list(filter(lambda m: m.operator in mutant_map, mutants))
     for mutant in mutants:
         mutant.set_is_equivalent(mutant_map[mutant.operator])
     return mutants
@@ -105,9 +103,7 @@ def form_dataset(original_methods, mutants):
     for mutant in mutants:
         index = len(mut_dataset.index)
         mut_dataset.loc[index] = [index, mutant.method_code]
-        # omindex = list(filter(lambda m: m.method == mutant.method, original_methods))[0]
         omindex = [i for i in range(len(original_methods)) if original_methods[i].method == mutant.method]
-        equiv = 0 if mutant.is_equivalent else 1
         new_pair = pd.DataFrame({'id1': index, 'id2': omindex, 'label': mutant.is_equivalent})
         mut_pairs = pd.concat([mut_pairs, new_pair], ignore_index=True)
 
@@ -122,7 +118,6 @@ def prepare_dataset():
     print('mutants collected')
     mutants = classify_mutants(mutants)
     print('mutants classified')
-    # print_mutants(mutants)
     form_dataset(original_methods, mutants)
     print('mutant dataset formed')
 

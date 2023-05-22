@@ -16,6 +16,13 @@ from genetic_algorithm import mutate, crossover, generate_bit_input
 from mutant import Mutant
 from test_case import TestCase
 
+"""
+Code for mutation testing.
+Mutation testing is presented with ability to use or not use the genetic algorithm,
+to use initially set test set or generated random test set, 
+ability to mark equivalent mutants or not checking it.
+"""
+
 
 def print_mutant_list(mutants):
     print('length of mutant list', len(mutants))
@@ -24,7 +31,7 @@ def print_mutant_list(mutants):
 
 
 def apply_mutation_testing(return_type, method_name, method_params, set_initial_data=False, mark_eq_mutants=False):
-    print('apply_mutation_testing...')
+    print('\napply_mutation_testing...')
     if set_initial_data:
         test_set = load_test_set(form_method_signature(return_type, method_name, method_params))
     else:
@@ -45,8 +52,9 @@ def apply_mutation_testing(return_type, method_name, method_params, set_initial_
     print('scores', all_score, non_eq_score, non_eq_mutants_ratio)
 
 
-def apply_mutation_testing_with_ga_test_data_generation(return_type, method_name, method_params, set_initial_data=False, mark_eq_mutants=False):
-    print('apply_mutation_testing_with_ga_test_data_generation...')
+def apply_mutation_testing_with_ga_test_data_generation(return_type, method_name, method_params, set_initial_data=False,
+                                                        mark_eq_mutants=False):
+    print('\napply_mutation_testing_with_ga_test_data_generation...')
     if set_initial_data:
         test_set = load_test_set(form_method_signature(return_type, method_name, method_params))
     else:
@@ -101,6 +109,7 @@ def load_test_set(full_method_name):
         test_set.append(TestCase(test_case, 8))
     return test_set
 
+
 def generate_initial_test_cases(method_params, method_name, num_of_test_cases):
     test_set = []
     Algorithm = jpype.JClass('mujava.program_session.result.Algorithm.original.Algorithm')
@@ -133,7 +142,6 @@ def recalculate_outputs(test_set, method_name):
 
 
 def apply_genetic_operations(test_set, method_name, method_params):
-    # print('apply_genetic_operations')
     removal_threshold = 0.2
     threshold = 0.5
     amount_of_test_cases = len(test_set)
@@ -141,13 +149,11 @@ def apply_genetic_operations(test_set, method_name, method_params):
     # selection
     for test_case in test_set:
         if test_case.mutant_proportion <= removal_threshold:
-            # print('remove', test_case.bit_input)
             test_set.remove(test_case)
 
     # mutation
     for test_case in test_set:
         if test_case.mutant_proportion <= threshold:
-            # print('mutate', test_case.bit_input)
             while True:
                 new_test_case = mutate(test_case.bit_input)
                 if len(list(filter(lambda x: x.bit_input == new_test_case, test_set))) == 0:
@@ -157,14 +163,12 @@ def apply_genetic_operations(test_set, method_name, method_params):
     # new data generation if less than 2 test cases are alive
     while len(test_set) < 2:
         new_test_case = generate_bit_input(8 * len(method_params))
-        # print('new test case', new_test_case)
         if len(list(filter(lambda x: x.bit_input == new_test_case, test_set))) == 0:
             test_set.append(TestCase(None, 8, new_test_case, method_name))
 
     # crossover
     while len(test_set) < amount_of_test_cases:
         new_test_case = crossover(test_set)
-        # print('new crossover test case, amount_of_test_cases', new_test_case, amount_of_test_cases)
         if len(list(filter(lambda x: x.bit_input == new_test_case, test_set))) == 0:
             test_set.append(TestCase(None, 8, new_test_case, method_name))
 
@@ -204,6 +208,11 @@ def evaluate_mutation_score(method_name, mutants, test_set, print_table=False):
     return [score, non_eq_score, non_eq_mutants_ratio]
 
 
+# Mutation table is presented for each mutant and test case pair.
+# 1 represents that test case did not kill the mutant, 0 represents that test case killed the mutant.
+# Test set info is also represented.
+# There for each test case input, expected output and mutant proportion is shown.
+# There mutant proportion shows the ratio how many mutants were killed by this test case.
 def print_mutation_table(mutation_table, test_set, marked_eq_mutants, marked_killed_mutants):
     print('mutation table')
     print(*marked_eq_mutants)
@@ -289,7 +298,9 @@ def verify_initial_test_set(method_name, test_set):
     for test_case in test_set:
         output = getattr(alg, method_name)(*test_case.input)
         if test_case.output != output:
-            print(test_case.input, output, test_case.output)
+            print('Expected output does not match the output of original program.')
+            print('Test case: ', test_case.input, test_case.output)
+            print('Output: ', output)
             exit()
 
 
@@ -297,15 +308,12 @@ def main():
     print('main')
     mutants_prep.fix_package_structure()
 
+    # set path to installed java compiler
     os.environ['JAVA_HOME'] = 'C:/Program Files/Java/jdk1.8.0_351/bin'
     jpype.startJVM(jpype.getDefaultJVMPath())
-    apply_mutation_testing('boolean', 'triangle', ['int', 'int', 'int'],
-                                                     set_initial_data=True, mark_eq_mutants=False)
-    apply_mutation_testing('boolean', 'triangle', ['int', 'int', 'int'], set_initial_data=False, mark_eq_mutants=False)
+    apply_mutation_testing('boolean', 'triangle', ['int', 'int', 'int'], set_initial_data=True, mark_eq_mutants=False)
     apply_mutation_testing_with_ga_test_data_generation('boolean', 'triangle', ['int', 'int', 'int'],
-                                                     set_initial_data=False, mark_eq_mutants=False)
-    apply_mutation_testing_with_ga_test_data_generation('boolean', 'triangle', ['int', 'int', 'int'],
-                                                     set_initial_data=True, mark_eq_mutants=False)
+                                                        set_initial_data=False, mark_eq_mutants=False)
     jpype.shutdownJVM()
     print('main finished')
 

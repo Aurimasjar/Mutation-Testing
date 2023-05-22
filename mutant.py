@@ -1,3 +1,7 @@
+"""
+Class for storing data about mutant.
+"""
+
 class Mutant:
     def __init__(self, filename, method, operator, method_code):
         self.filename = filename

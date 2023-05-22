@@ -1,6 +1,9 @@
 import pandas as pd
 from matplotlib import pyplot as plt
 
+"""
+Module used to save graphs and their data generated when running genetic algorithm. 
+"""
 
 def save_to_csv(obj, filename):
     df = pd.DataFrame(obj)

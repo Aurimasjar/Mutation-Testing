@@ -1,6 +1,10 @@
 import jpype
 
-from constants import absolute_path
+"""
+Class for storing data about test case.
+Field bit_input represents test case converted to stream of bits.
+Current version supports only static number of fields without arrays.
+"""
 
 
 class TestCase:
@@ -20,23 +24,16 @@ class TestCase:
             self.bit_input = None
 
     def convert_to_bits(self):
-        # print('convert_to_bits')
         param_bits = []
         for param in self.input:
-            # if isinstance(param, list):
-            #     for param_elem in param:
-            #         param_bits.append("{0:b}".format(param_elem).zfill(self.bit_size))
-            # else:
             param_bits.append("{0:b}".format(param).zfill(self.bit_size))
         self.bit_input = ''.join(param_bits)
 
     def convert_from_bits(self):
-        # print('convert_from_bits')
         param_bits = [self.bit_input[i:i + self.bit_size] for i in range(0, len(self.bit_input), self.bit_size)]
         self.input = [int(param, 2) for param in param_bits]
 
     def recalculate_output(self, method_name):
-        # print('recalculate_output')
         Algorithm = jpype.JClass('mujava.program_session.result.Algorithm.original.Algorithm')
         alg = Algorithm()
         self.output = getattr(alg, method_name)(*self.input)
