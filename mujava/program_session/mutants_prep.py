@@ -2,10 +2,16 @@ import os
 import re
 import subprocess
 
-# initial_mujava_path = 'result/Algorithm/'
 initial_mujava_path = 'mujava/program_session/result/Algorithm/'
+
+# change path to your own environment
 absolute_path = 'C:/Users/a.petretis/PycharmProjects/Mutation-Testing'
 
+
+"""
+Code to prepare generated mutants for mutation testing.
+For each code package keyword is added to make them unique and folder method names are renamed to be readable.
+"""
 
 def fix_package_structure():
     # set package names for original code

@@ -11,7 +11,6 @@ from mutant import Mutant
 session_path = 'dataset_session'
 algorithm_class = 'DatasetRootAlgorithm'
 test_file = 'dataset_output.txt'
-# test_file = 'output.txt'
 
 
 def print_mutants(mutants):

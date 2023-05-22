@@ -45,4 +45,4 @@ Use gui interface to mark class to mutate and selected mutation operators (use o
 Decompiled original program is stored in `mujava\program_session\result\original` folder.
 Decompiled mutants are stored in `mujava\program_session\result\traditional_mutants` folder.
 5. `fix_package_structure` function from `mutants_prep.py` file is used to prepare codes for execution.
-For each code package keyword is added to make them unique and folder method names are fixed to be readable.
+For each code package keyword is added to make them unique and folder method names are renamed to be readable.

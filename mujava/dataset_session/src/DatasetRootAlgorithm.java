@@ -1,3 +1,7 @@
+/* Collection of classic java programs.
+Dataset consists of 77 original programs.
+All methods are mutated and presented in the DatasetRootAlgorithm/traditional_mutants folder */
+
 public class DatasetRootAlgorithm {
 
     // linearSearch method
