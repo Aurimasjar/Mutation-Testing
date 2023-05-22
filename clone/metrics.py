@@ -3,14 +3,21 @@ import re
 import pandas as pd
 from torch import tensor
 
+# uncomment if code is used from /clone folder. Comment if used from root folder
 # import prepare_data_java
 # from prepare_data_c import get_sequences
 # from prepare_data_java import get_sequence
 
-
+# comment if code is used from /clone folder. Uncomment if used from root folder
 from . import prepare_data_java
 from .prepare_data_c import get_sequences
 from .prepare_data_java import get_sequence
+
+"""
+Metrics defined for metrics neural network from https://github.com/zhangj111/astnn.
+Metrics are calculated for both code clone detection and equivalent mutant problem.
+"""
+
 
 class Metrics:
     def __init__(self, *params):
@@ -424,7 +431,7 @@ def get_prefix_operator_count_java(ast):
     positions = [m.start() for m in re.finditer('prefix_operators', ast)]
     for pos1 in positions:
         pos2 = ast.find(']', pos1)
-        count += ast[pos1:pos2+1].count("'") // 2
+        count += ast[pos1:pos2 + 1].count("'") // 2
     return count
 
 
@@ -434,8 +441,9 @@ def get_postfix_operator_count_java(ast):
     positions = [m.start() for m in re.finditer('postfix_operators', ast)]
     for pos1 in positions:
         pos2 = ast.find(']', pos1)
-        count += ast[pos1:pos2+1].count("'") // 2
+        count += ast[pos1:pos2 + 1].count("'") // 2
     return count
+
 
 def get_node_count_java(node):
     node_count = 0

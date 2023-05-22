@@ -15,6 +15,8 @@ import model_training
 
 warnings.filterwarnings('ignore')
 
+"""Code for training Abstract Syntax Tree neural network from https://github.com/zhangj111/astnn.
+Process is adapted for equivalent mutant detection problem."""
 
 def get_batch(dataset, idx, bs):
     tmp = dataset.iloc[idx: idx+bs]

@@ -13,6 +13,11 @@ from metrics_model import MetricsModel
 
 warnings.filterwarnings('ignore')
 
+"""
+Code for training Siamese neural network using code metrics.
+Designed for both code clone detection and equivalent mutant detection problem.
+if there validation data validation layer is also used to compare training results.
+"""
 
 def get_batch(dataset, idx, bs):
     tmp = dataset.iloc[idx: idx + bs]

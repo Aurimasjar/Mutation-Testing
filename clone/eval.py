@@ -14,10 +14,18 @@ from .metrics_model import MetricsModel
 from .prepare_data_java import get_sequence, get_blocks_v1
 from .tree import SingleNode
 
+"""
+Code to evaluate the equivalence of code pairs is presented.
+To evaluate method as an input pass a batch of code pairs and the method name that is compared.
+Output is a boolean array of predictions about code pair equivalence.
+"""
+
 root = 'clone/data/'
 lang = 'javamut'
 ast_model_filepath = 'clone/output/' + lang + '/ast_model.pkl'
 metrics_model_filepath = 'clone/output/' + lang + '/metrics_model.pkl'
+threshold1 = 0.1
+threshold2 = 0.2
 
 
 def evaluate(code_pairs, method_name):
@@ -53,17 +61,13 @@ def evaluate(code_pairs, method_name):
     ast_output = ast_model(ast1, ast2)
     metrics_model.batch_size = len(metrics1)
     metrics_output = metrics_model(metrics1, metrics2)
-    # for i in range (0, len(ast_output.data.cpu().numpy())):
-    #     print('[i, ast_prob, metrics_prob]', i, ast_output.data.cpu().numpy()[i][0], metrics_output.data.cpu().numpy()[i][0])
     ast_predicts_probability.extend(ast_output.data)
     metrics_predicts_probability.extend(metrics_output.data)
-    result = combine_or_prob(ast_predicts_probability, metrics_predicts_probability, 0.1, 0.2)
+    result = combine_or_prob(ast_predicts_probability, metrics_predicts_probability, threshold1, threshold2)
     return list(map(lambda x: x[0], result))
 
 
 def construct_code_info(pair, method_name):
-    # print('construct_code_info', pair[0], pair[1])
-    # source['code'] = parse_program(pair[0])
     ast1 = parse_program(pair[0])
     ast2 = parse_program(pair[1])
 
@@ -73,14 +77,10 @@ def construct_code_info(pair, method_name):
     metrics1 = calculate_java_mut_metrics(ast1)
     metrics2 = calculate_java_mut_metrics(ast2)
 
-    # split asts to blocks like in original paper
+    # split asts to blocks
     ast1 = generate_block_seqs(ast1)
     ast2 = generate_block_seqs(ast2)
 
-    # print('ast1', ast1)
-    # print('ast2', ast2)
-    # print('metrics1', metrics1)
-    # print('metrics2', metrics2)
     return ast1, ast2, metrics1, metrics2
 
 
@@ -124,7 +124,6 @@ def parse_program(source_code):
     tokens = javalang.tokenizer.tokenize(source_code, True)
     parser = javalang.parser.Parser(tokens)
     tree = parser.parse_member_declaration()
-    # tree = javalang.parse.parse(source_code)
     return tree
 
 
@@ -135,9 +134,3 @@ def load_embeddings():
     embeddings = np.zeros((MAX_TOKENS + 1, EMBEDDING_DIM), dtype="float32")
     embeddings[:word2vec.vectors.shape[0]] = word2vec.vectors
     return EMBEDDING_DIM, MAX_TOKENS, embeddings
-
-# print('xxx')
-# code1 = Path('../mujava/VendingMachine.java').read_text()
-# code2 = Path('../mujava/VendingMachineM.java').read_text()
-# code_pairs = [[code1, code2]]
-# evaluate(code_pairs)

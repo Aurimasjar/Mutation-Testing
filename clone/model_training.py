@@ -1,3 +1,4 @@
+# Function to return accuracy among all elements.
 def count_accuracy(true_elements, predicted_elements):
     assert len(true_elements) == len(predicted_elements)
     count = 0

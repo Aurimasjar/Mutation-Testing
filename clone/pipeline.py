@@ -14,6 +14,10 @@ import metrics
 tqdm.pandas()
 warnings.filterwarnings('ignore')
 
+"""
+Pipeline process of producing metadata for neural network models from https://github.com/zhangj111/astnn.
+Additionally code metrics are calculated for metrics model.
+"""
 
 class Pipeline:
     def __init__(self, ratio, root, language: str):
@@ -37,19 +41,16 @@ class Pipeline:
         """Parse code using pycparser
 
         If the user doesn't provide `output_file`, the method reads the
-        a DataFrame containing the columns id, code (C/Java code parsed
-        by pycparser) and label. Otherwise it reads a Dataframe from
-        `input_file` containing the columns id, code (input C/Java code)
-        and label, applies the c_parser/javalang to the code column and
-        stores the resulting dataframe into `output_file`
+        DataFrame containing the columns id, code and label. Otherwise it reads a Dataframe from
+        `input_file` containing the columns id, code and label, applies the c_parser/javalang to the code column
+        and stores the resulting dataframe into `output_file`
 
         Args:
             input_file (str): Path to the input file
             output_file (str): Path to the output file
 
         Returns:
-            pd.DataFrame: DataFrame with the columns id, code (C/Java code
-                parsed by pycparser/javalang) and label.
+            pd.DataFrame: DataFrame with the columns id, code (C/Java code parsed by pycparser/javalang) and label.
         """
         input_path = os.path.join(self.root, self.language, input_file)
         if output_file is None:

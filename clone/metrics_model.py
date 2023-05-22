@@ -1,6 +1,11 @@
 import torch.nn as nn
 import torch
 
+"""
+Metrics model implemented for both code clone detection and equivalent mutant detection problem.
+Siamese neural network structure is used.
+Z-Score normalization is used to improve the performance and training stability of the model.
+"""
 
 class MetricsModel(nn.Module):
     def __init__(self, metrics_dim, batch_size, means, stds):

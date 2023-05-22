@@ -15,6 +15,11 @@ from metrics_model import MetricsModel
 
 warnings.filterwarnings('ignore')
 
+"""
+Code used to test trained models for both code clone detection and equivalent mutant detection tasks.
+Results for models are presented both combined and separately.
+Also the graph where combined model accuracy and recall values change by changing metrics model threshold is presented. 
+"""
 
 def get_ast_batch(dataset, idx, bs):
     tmp = dataset.iloc[idx: idx + bs]

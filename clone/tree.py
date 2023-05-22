@@ -1,5 +1,11 @@
 from javalang.ast import Node
 
+"""
+Tree structure to represent code from https://github.com/zhangj111/astnn.
+Defined for both C and Java code.
+"""
+
+
 class ASTNode(object):
     def __init__(self, node):
         self.node = node
@@ -48,13 +54,6 @@ class ASTNode(object):
             token = token.lower()
         return token
 
-    # def token_to_index(self, token):
-    #     self.index = self.vocab[token].index if token in self.vocab else MAX_TOKENS
-    #     return self.index
-
-    # def get_index(self):
-    #     return self.index
-
     def add_children(self):
         if self.is_str:
             return []
@@ -62,7 +61,7 @@ class ASTNode(object):
         if self.token in ['FuncDef', 'If', 'While', 'DoWhile']:
             return [ASTNode(children[0][1])]
         elif self.token == 'For':
-            return [ASTNode(children[c][1]) for c in range(0, len(children)-1)]
+            return [ASTNode(children[c][1]) for c in range(0, len(children) - 1)]
         else:
             return [ASTNode(child) for _, child in children]
 
@@ -121,7 +120,8 @@ class BlockNode(object):
         elif self.token in ['MethodDeclaration', 'ConstructorDeclaration']:
             return [BlockNode(child) for child in children]
         else:
-            return [BlockNode(child) for child in children if self.get_token( child) not in logic]
+            return [BlockNode(child) for child in children if self.get_token(child) not in logic]
+
 
 class SingleNode(ASTNode):
     def __init__(self, node):

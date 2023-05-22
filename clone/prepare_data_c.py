@@ -5,9 +5,17 @@ import re
 import sys
 from gensim.models.word2vec import Word2Vec
 import pickle
+
+# uncomment if code is used from /clone folder. Comment if used from root folder
 # from tree import ASTNode, SingleNode
+
+# comment if code is used from /clone folder. Uncomment if used from root folder
 from .tree import ASTNode, SingleNode
 import numpy as np
+
+"""
+Code that represents dynamic batching from https://github.com/zhangj111/astnn.
+"""
 
 
 def get_sequences(node, sequence):
@@ -44,37 +52,3 @@ def get_blocks(node, block_seq):
     else:
         for _, child in node.children():
             get_blocks(child, block_seq)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

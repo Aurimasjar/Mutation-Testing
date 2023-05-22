@@ -3,6 +3,11 @@ import torch.nn.functional as F
 import torch
 from torch.autograd import Variable
 
+"""
+Abstract Syntax Tree neural network from https://github.com/zhangj111/astnn.
+Model is adapted for equivalent mutant detection problem.
+"""
+
 
 class BatchTreeEncoder(nn.Module):
     def __init__(self, vocab_size, embedding_dim, encode_dim, batch_size, use_gpu, pretrained_weight=None):
@@ -39,20 +44,20 @@ class BatchTreeEncoder(nn.Module):
         current_node, children = [], []
         for i in range(size):
             # if node[i][0] is not -1:
-                index.append(i)
-                current_node.append(node[i][0])
-                temp = node[i][1:]
-                c_num = len(temp)
-                for j in range(c_num):
-                    if temp[j][0] != -1:
-                        if len(children_index) <= j:
-                            children_index.append([i])
-                            children.append([temp[j]])
-                        else:
-                            children_index[j].append(i)
-                            children[j].append(temp[j])
-            # else:
-            #     batch_index[i] = -1
+            index.append(i)
+            current_node.append(node[i][0])
+            temp = node[i][1:]
+            c_num = len(temp)
+            for j in range(c_num):
+                if temp[j][0] != -1:
+                    if len(children_index) <= j:
+                        children_index.append([i])
+                        children.append([temp[j]])
+                    else:
+                        children_index[j].append(i)
+                        children[j].append(temp[j])
+        # else:
+        #     batch_index[i] = -1
 
         batch_current = self.W_c(batch_current.index_copy(0, Variable(self.th.LongTensor(index)),
                                                           self.embedding(Variable(self.th.LongTensor(current_node)))))
@@ -80,7 +85,7 @@ class BatchTreeEncoder(nn.Module):
 class BatchProgramCC(nn.Module):
     def __init__(self, embedding_dim, vocab_size, batch_size, pretrained_weight=None):
         super(BatchProgramCC, self).__init__()
-        self.stop = [vocab_size-1]
+        self.stop = [vocab_size - 1]
         self.hidden_dim = 100
         self.num_layers = 1
         self.gpu = False
@@ -131,8 +136,8 @@ class BatchProgramCC(nn.Module):
         for i in range(self.batch_size):
             end += lens[i]
             seq.append(encodes[start:end])
-            if max_len-lens[i]:
-                seq.append(self.get_zeros(max_len-lens[i]))
+            if max_len - lens[i]:
+                seq.append(self.get_zeros(max_len - lens[i]))
             start = end
         encodes = torch.cat(seq)
         encodes = encodes.view(self.batch_size, max_len, -1)
@@ -154,4 +159,3 @@ class BatchProgramCC(nn.Module):
         abs_dist = torch.abs(torch.add(lvec, -rvec))
         y = torch.sigmoid(self.hidden2label(abs_dist))
         return y
-

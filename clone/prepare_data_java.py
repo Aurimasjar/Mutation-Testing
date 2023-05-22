@@ -1,10 +1,16 @@
-import pandas as pd
-import javalang
 from javalang.ast import Node
+
+# uncomment if code is used from /clone folder. Comment if used from root folder
 # from tree import ASTNode, BlockNode
+
+# comment if code is used from /clone folder. Uncomment if used from root folder
 from .tree import ASTNode, BlockNode
 import sys
 sys.setrecursionlimit(10000)
+
+"""
+Code that represents dynamic batching from https://github.com/zhangj111/astnn.
+"""
 
 def get_token(node):
     token = ''

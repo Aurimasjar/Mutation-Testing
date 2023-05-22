@@ -5,6 +5,10 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn.metrics import confusion_matrix
 
+"""
+Module used to save graphs and their data generated when training or testing models. 
+Read functions are also provided to read already generated graphs.
+"""
 
 def save_to_csv(obj, filename):
     df = pd.DataFrame(obj)
